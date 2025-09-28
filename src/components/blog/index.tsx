@@ -41,7 +41,7 @@ function Blog() {
 
                 {/* Content */}
                 <div className="p-5 md:p-6">
-                  <div className="text-red-500 text-xs font-semibold uppercase tracking-wide mb-3">
+                  <div className="text-[#123524] text-xs font-semibold uppercase tracking-wide mb-3">
                     {card.category || 'Technology Report'}
                   </div>
                   <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-3 group-hover:text-green-600 transition-colors duration-300">
@@ -71,7 +71,7 @@ function Blog() {
                       />
                     </div>
                     <div className="p-6 flex-1 flex flex-col">
-                      <div className="text-red-500 text-xs font-semibold uppercase tracking-wide mb-3">
+                      <div className="text-[#123524] text-xs font-semibold uppercase tracking-wide mb-3">
                         {card.category || 'Enterprise Technology'}
                       </div>
                       <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-green-600 transition-colors duration-300 flex-1">
