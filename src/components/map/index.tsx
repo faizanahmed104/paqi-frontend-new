@@ -11,6 +11,7 @@ import {
   OctagonAlert,
   Skull,
 } from 'lucide-react';
+import { AirLoader } from '@/ui-elements/Loader';
 
 mapboxgl.accessToken =
   (process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string) || '';
@@ -194,7 +195,7 @@ function Map() {
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
         center: [71.5, 30.2], // Center Pakistan
-        zoom: 4,
+        zoom: 3,
       });
 
       // Add zoom and rotation controls
@@ -370,16 +371,14 @@ function Map() {
         <div className="max-w-7xl mx-auto rounded-3xl p-8 lg:p-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left - Interactive Map */}
-            <div className="relative">
+            <div className="relative -mx-4 sm:mx-0">
               <div
                 ref={mapContainer}
                 className="relative rounded-2xl min-h-[400px] lg:min-h-[500px] overflow-hidden"
               />
               {loading && (
                 <div className="absolute inset-0 bg-white bg-opacity-75 rounded-2xl flex items-center justify-center">
-                  <div className="text-gray-600">
-                    Loading air quality data...
-                  </div>
+                  <AirLoader />
                 </div>
               )}
             </div>

@@ -22,14 +22,14 @@ function Blog() {
         {/* Blog Cards */}
         <div>
           {/* Mobile & Tablet Slider - up to desktop */}
-          <div className="flex lg:hidden space-x-4 md:space-x-6 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide -mx-4 px-4 md:px-6">
+          <div className="flex lg:hidden space-x-4 md:space-x-6 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide px-4 md:px-6">
             {CARDS.map((card, index) => (
               <article
                 key={index}
-                className="flex-shrink-0 snap-center w-80 md:w-96 bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 group cursor-pointer"
+                className="flex-shrink-0 snap-center w-80 md:w-96 bg-white shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 group cursor-pointer"
               >
                 {/* Image */}
-                <div className="relative h-48 md:h-52 overflow-hidden rounded-t-lg">
+                <div className="relative h-48 md:h-52 overflow-hidden">
                   <Image
                     src={card.img}
                     alt={card.title}
