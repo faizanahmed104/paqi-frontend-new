@@ -22,14 +22,14 @@ function Blog() {
         {/* Blog Cards */}
         <div>
           {/* Mobile & Tablet Slider - up to desktop */}
-          <div className="flex lg:hidden space-x-4 md:space-x-6 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide -mx-4 px-4 md:px-6">
+          <div className="flex lg:hidden space-x-4 md:space-x-6 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide px-4 md:px-6">
             {CARDS.map((card, index) => (
               <article
                 key={index}
-                className="flex-shrink-0 snap-center w-80 md:w-96 bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 group cursor-pointer"
+                className="flex-shrink-0 snap-center w-80 md:w-96 bg-white shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 group cursor-pointer"
               >
                 {/* Image */}
-                <div className="relative h-48 md:h-52 overflow-hidden rounded-t-lg">
+                <div className="relative h-48 md:h-52 overflow-hidden">
                   <Image
                     src={card.img}
                     alt={card.title}
@@ -41,7 +41,7 @@ function Blog() {
 
                 {/* Content */}
                 <div className="p-5 md:p-6">
-                  <div className="text-red-500 text-xs font-semibold uppercase tracking-wide mb-3">
+                  <div className="text-[#123524] text-xs font-semibold uppercase tracking-wide mb-3">
                     {card.category || 'Technology Report'}
                   </div>
                   <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-3 group-hover:text-green-600 transition-colors duration-300">
@@ -71,7 +71,7 @@ function Blog() {
                       />
                     </div>
                     <div className="p-6 flex-1 flex flex-col">
-                      <div className="text-red-500 text-xs font-semibold uppercase tracking-wide mb-3">
+                      <div className="text-[#123524] text-xs font-semibold uppercase tracking-wide mb-3">
                         {card.category || 'Enterprise Technology'}
                       </div>
                       <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-green-600 transition-colors duration-300 flex-1">

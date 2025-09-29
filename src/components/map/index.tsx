@@ -11,17 +11,22 @@ import {
   OctagonAlert,
   Skull,
 } from 'lucide-react';
+import { AirLoader } from '@/ui-elements/Loader';
 
-mapboxgl.accessToken = (process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string) || '';
+mapboxgl.accessToken =
+  (process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string) || '';
 
 /* ---------- AQI helpers ---------- */
 function aqiInfo(aqiNum?: number | null) {
   const aqi = typeof aqiNum === 'number' ? aqiNum : -1;
-  if (aqi >= 0 && aqi <= 50) return { status: 'Good', Icon: Smile, color: '#56AF7E' };
+  if (aqi >= 0 && aqi <= 50)
+    return { status: 'Good', Icon: Smile, color: '#56AF7E' };
   if (aqi <= 100) return { status: 'Moderate', Icon: Meh, color: '#DDAE5B' };
   if (aqi <= 150) return { status: 'USG', Icon: Frown, color: '#E97E3C' };
-  if (aqi <= 200) return { status: 'Unhealthy', Icon: AlertTriangle, color: '#CA5C58' };
-  if (aqi <= 300) return { status: 'Very Unhealthy', Icon: OctagonAlert, color: '#A070B6' };
+  if (aqi <= 200)
+    return { status: 'Unhealthy', Icon: AlertTriangle, color: '#CA5C58' };
+  if (aqi <= 300)
+    return { status: 'Very Unhealthy', Icon: OctagonAlert, color: '#A070B6' };
   if (aqi > 300) return { status: 'Hazardous', Icon: Skull, color: '#A52A2A' };
   return { status: '—', Icon: Meh, color: '#9CA3AF' };
 }
@@ -37,7 +42,6 @@ function Map() {
   const [mapLoaded, setMapLoaded] = useState(false);
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapInstance = useRef<mapboxgl.Map | null>(null);
-  const markersRef = useRef<mapboxgl.Marker[]>([]);
 
   // Hotspot definitions (keeps the original order / list)
   const hotspots = [
@@ -164,9 +168,9 @@ function Map() {
             const aqius = getAqius(json);
             // AirVisual sometimes has different naming for pm2.5; try a few options:
             const pm25 = json?.data?.current?.pollution?.pm2_5;
-            json?.data?.current?.pollution?.p2?.conc
-              ?? json?.data?.current?.pollution?.p2
-              ?? null;
+            json?.data?.current?.pollution?.p2?.conc ??
+              json?.data?.current?.pollution?.p2 ??
+              null;
             return { city: cfg.city, aqi: aqius, pm25 };
           })
         );
@@ -191,7 +195,7 @@ function Map() {
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
         center: [71.5, 30.2], // Center Pakistan
-        zoom: 4,
+        zoom: 3,
       });
 
       // Add zoom and rotation controls
@@ -242,109 +246,122 @@ function Map() {
     const map = mapInstance.current;
     if (!map || !mapLoaded || !hotspotData || hotspotData.length === 0) return;
 
-    // remove previous markers
-    markersRef.current.forEach((m) => m.remove());
-    markersRef.current = [];
+    // Remove existing sources if they exist
+    if (map.getSource('hotspots')) {
+      map.removeLayer('hotspots-layer');
+      map.removeSource('hotspots');
+    }
 
-    hotspots.forEach((hotspot) => {
-      // match data by city name (safer than using array index)
-      const data =
-        hotspotData.find(
-          (d) =>
-            String(d.city).toLowerCase() === String(hotspot.city).toLowerCase()
-        ) ?? {};
-      const aqi =
-        typeof data.aqi === 'number' ? data.aqi : Number(data.aqi) || null;
-      const pm25 = data.pm25 ?? null;
-      const info = aqiInfo(aqi);
+    // Create GeoJSON data for hotspots
+    const hotspotsGeoJSON = {
+      type: 'FeatureCollection',
+      features: hotspots.map((hotspot) => {
+        const data =
+          hotspotData.find(
+            (d) =>
+              String(d.city).toLowerCase() ===
+              String(hotspot.city).toLowerCase()
+          ) ?? {};
+        const aqi =
+          typeof data.aqi === 'number' ? data.aqi : Number(data.aqi) || null;
+        const pm25 = data.pm25 ?? null;
+        const info = aqiInfo(aqi);
 
-      // create marker element
-      const el = document.createElement('div');
-      el.className =
-        'rounded-full border-2 border-white shadow-lg cursor-pointer transition-all duration-200 hover:scale-125';
-      el.style.width = '20px';
-      el.style.height = '20px';
-      el.style.backgroundColor = info.color;
-      el.style.zIndex = '1000';
+        return {
+          type: 'Feature',
+          properties: {
+            city: hotspot.city,
+            aqi: aqi || null,
+            pm25: pm25 || null,
+            status: info.status,
+            color: info.color,
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: hotspot.coordinates,
+          },
+        };
+      }),
+    };
 
-      // popup logic on hover (create and remove)
-      let popup: mapboxgl.Popup | null = null;
-      const createHtml = () => {
-        const statusText =
-          info.status === 'USG'
-            ? 'Unhealthy for Sensitive Groups'
-            : info.status;
-        return `
-          <div style="min-width:180px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; padding: 4px;">
-            <div style="font-weight:600; margin-bottom:8px; font-size:16px; color:#111;">${hotspot.city}</div>
-            <div style="font-size:13px; color:#374151; line-height:1.4;">
-              <div style="margin-bottom:3px;"><strong>AQI:</strong> <span style="color:${info.color}; font-weight:600;">${aqi ?? '—'}</span></div>
-              <div style="margin-bottom:3px;"><strong>Status:</strong> ${statusText}</div>
-              <div><strong>PM2.5:</strong> ${pm25 ? pm25.toFixed(1) : '—'} μg/m³</div>
-            </div>
-          </div>
-        `;
-      };
+    // Add hotspots source
+    map.addSource('hotspots', {
+      type: 'geojson',
+      data: hotspotsGeoJSON as GeoJSON.FeatureCollection,
+    });
 
-      el.addEventListener('mouseenter', () => {
-        // remove any existing popup to avoid duplicates
-        if (popup) {
-          popup.remove();
-          popup = null;
+    // Add hotspots layer
+    map.addLayer({
+      id: 'hotspots-layer',
+      type: 'circle',
+      source: 'hotspots',
+      paint: {
+        'circle-radius': 10,
+        'circle-color': ['get', 'color'],
+        'circle-stroke-width': 2,
+        'circle-stroke-color': '#ffffff',
+        'circle-opacity': 0.9,
+      },
+    });
+
+    // Add hover effect
+    const handleMouseEnter = (e: mapboxgl.MapMouseEvent) => {
+      map.getCanvas().style.cursor = 'pointer';
+
+      if (e.features && e.features[0]) {
+        const feature = e.features[0];
+        const geometry = feature.geometry as GeoJSON.Point;
+        const coordinates = geometry.coordinates.slice() as [number, number];
+        const properties = feature.properties;
+
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
         }
-        popup = new mapboxgl.Popup({
-          offset: 15,
+
+        new mapboxgl.Popup({
           closeButton: false,
           closeOnClick: false,
           className: 'custom-popup',
-        })
-          .setLngLat(hotspot.coordinates as [number, number])
-          .setHTML(createHtml())
-          .addTo(map);
-      });
-
-      el.addEventListener('mouseleave', () => {
-        if (popup) {
-          popup.remove();
-          popup = null;
-        }
-      });
-
-      // click opens persistent popup (optional)
-      el.addEventListener('click', () => {
-        // Remove any existing hover popup first
-        if (popup) {
-          popup.remove();
-          popup = null;
-        }
-
-        const persistent = new mapboxgl.Popup({
           offset: 15,
-          className: 'custom-popup persistent-popup',
         })
-          .setLngLat(hotspot.coordinates as [number, number])
-          .setHTML(createHtml())
+          .setLngLat(coordinates)
+          .setHTML(
+            `
+            <div style="min-width:180px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; padding: 4px;">
+              <div style="font-weight:600; margin-bottom:8px; font-size:16px; color:#111;">${properties?.city}</div>
+              <div style="font-size:13px; color:#374151; line-height:1.4;">
+                <div style="margin-bottom:3px;"><strong>AQI:</strong> <span style="color:${properties?.color}; font-weight:600;">${properties?.aqi ?? '—'}</span></div>
+                <div style="margin-bottom:3px;"><strong>Status:</strong> ${properties?.status === 'USG' ? 'Unhealthy for Sensitive Groups' : properties?.status}</div>
+                <div><strong>PM2.5:</strong> ${properties?.pm25 ? Number(properties.pm25).toFixed(1) : '—'} μg/m³</div>
+              </div>
+            </div>
+          `
+          )
           .addTo(map);
+      }
+    };
 
-        // Auto-remove after 8 seconds to avoid clutter
-        setTimeout(() => {
-          if (persistent.isOpen()) {
-            persistent.remove();
-          }
-        }, 8000);
-      });
+    const handleMouseLeave = () => {
+      map.getCanvas().style.cursor = '';
+      // Remove all popups
+      const popups = document.getElementsByClassName('mapboxgl-popup');
+      Array.from(popups).forEach((popup) => popup.remove());
+    };
 
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat(hotspot.coordinates as [number, number])
-        .addTo(map);
+    map.on('mouseenter', 'hotspots-layer', handleMouseEnter);
+    map.on('mouseleave', 'hotspots-layer', handleMouseLeave);
 
-      markersRef.current.push(marker);
-    });
-
-    // cleanup markers on effect rerun/unmount
+    // Cleanup function
     return () => {
-      markersRef.current.forEach((m) => m.remove());
-      markersRef.current = [];
+      if (map.getSource('hotspots')) {
+        map.off('mouseenter', 'hotspots-layer', handleMouseEnter);
+        map.off('mouseleave', 'hotspots-layer', handleMouseLeave);
+        map.removeLayer('hotspots-layer');
+        map.removeSource('hotspots');
+      }
     };
   }, [hotspotData, mapLoaded]);
 
@@ -354,16 +371,14 @@ function Map() {
         <div className="max-w-7xl mx-auto rounded-3xl p-8 lg:p-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left - Interactive Map */}
-            <div className="relative">
+            <div className="relative -mx-4 sm:mx-0">
               <div
                 ref={mapContainer}
                 className="relative rounded-2xl min-h-[400px] lg:min-h-[500px] overflow-hidden"
               />
               {loading && (
                 <div className="absolute inset-0 bg-white bg-opacity-75 rounded-2xl flex items-center justify-center">
-                  <div className="text-gray-600">
-                    Loading air quality data...
-                  </div>
+                  <AirLoader />
                 </div>
               )}
             </div>
