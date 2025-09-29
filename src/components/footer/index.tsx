@@ -1,3 +1,6 @@
+import Image from 'next/image';
+import Link from 'next/link';
+
 function Footer() {
   return (
     <div className="relative p-4">
@@ -19,15 +22,21 @@ function Footer() {
               </p>
 
               {/* Logo */}
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                  <div className="w-4 h-4 bg-white rounded-full" />
+              <div className="flex items-center space-x-2 sm:space-x-4 min-w-0 transition-all duration-500">
+                <div className="flex space-x-0.5 sm:space-x-1">
+                  <Image
+                    src="/assets/images/logo.png"
+                    alt="PAQI"
+                    width={45}
+                    height={45}
+                    className="w-[40px] h-[40px] sm:w-[45px] sm:h-[45px] lg:w-[60px] lg:h-[60px] transition-all duration-500"
+                  />
                 </div>
-                <div className="text-sm text-gray-300">
-                  <div>Pakistan</div>
-                  <div>Air Quality</div>
-                  <div>Initiative</div>
-                </div>
+                <h2
+                  className={`text-[14px] sm:text-sm lg:text-2xl xl:text-3xl font-semibold tracking-wide truncate transition-all duration-500 `}
+                >
+                  <Link href="/">Pakistan Air Quality Initiative</Link>
+                </h2>
               </div>
 
               {/* Social Media Icons - Clean icons without borders */}
@@ -38,7 +47,7 @@ function Footer() {
                   className="text-gray-300 hover:text-white transition-colors duration-200"
                 >
                   <svg
-                    className="w-6 h-6"
+                    className="w-4 h-4"
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
@@ -52,7 +61,7 @@ function Footer() {
                   className="text-gray-300 hover:text-white transition-colors duration-200"
                 >
                   <svg
-                    className="w-6 h-6"
+                    className="w-4 h-4"
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
@@ -66,7 +75,7 @@ function Footer() {
                   className="text-gray-300 hover:text-white transition-colors duration-200"
                 >
                   <svg
-                    className="w-6 h-6"
+                    className="w-4 h-4"
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
@@ -80,7 +89,7 @@ function Footer() {
                   className="text-gray-300 hover:text-white transition-colors duration-200"
                 >
                   <svg
-                    className="w-6 h-6"
+                    className="w-4 h-4"
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
@@ -123,7 +132,7 @@ function Footer() {
 
           {/* Row 2: Navigation Links */}
           <div className="pb-2">
-            <div className="flex flex-wrap justify-end space-x-8 text-sm">
+            <div className="flex flex-wrap justify-center sm:justify-end space-x-4 sm:space-x-8 sm:text-sm text-[12px]">
               <a
                 href="/contact-us"
                 className="text-gray-300 hover:text-white transition-colors duration-200"
@@ -131,28 +140,22 @@ function Footer() {
                 Contact us
               </a>
               <a
-                href="#"
-                className="text-gray-300 hover:text-white transition-colors duration-200"
-              >
-                Research
-              </a>
-              <a
-                href="#"
-                className="text-gray-300 hover:text-white transition-colors duration-200"
-              >
-                Reports
-              </a>
-              <a
-                href="#"
-                className="text-gray-300 hover:text-white transition-colors duration-200"
-              >
-                Data
-              </a>
-              <a
                 href="/about-us"
                 className="text-gray-300 hover:text-white transition-colors duration-200"
               >
                 About us
+              </a>
+              <a
+                href="/insights"
+                className="text-gray-300 hover:text-white transition-colors duration-200"
+              >
+                Insights
+              </a>
+              <a
+                href="/map"
+                className="text-gray-300 hover:text-white transition-colors duration-200"
+              >
+                Map
               </a>
             </div>
           </div>

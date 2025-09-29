@@ -33,8 +33,8 @@ export default function Partners() {
     pos2 = width;
 
     const step = () => {
-      pos1 -= 1; // speed
-      pos2 -= 1;
+      pos1 -= 2; // speed
+      pos2 -= 2;
 
       if (pos1 <= -width) {
         pos1 = pos2 + width;
@@ -75,15 +75,18 @@ export default function Partners() {
           {logos.map((src, i) => (
             <div
               key={`track1-${i}`}
-              className="flex h-[100px] items-center justify-center shrink-0 px-10"
+              className="flex h-[100px] items-center justify-center shrink-0 sm:px-10"
             >
-              <Image
-                width={100}
-                height={100}
-                src={src}
-                alt="Partner Logo"
-                className="max-h-[50px] opacity-70 grayscale transition hover:scale-110 hover:opacity-100 hover:grayscale-0"
-              />
+              <div className="relative w-[120px] flex items-center justify-center">
+                <Image
+                  width={100}
+                  height={100}
+                  src={src}
+                  alt="Partner Logo"
+                  style={{ objectFit: 'contain' }}
+                  className="max-w-[100px] max-h-[40px] sm:max-h-[45px] lg:max-h-[50px] w-auto opacity-70 grayscale transition hover:scale-110 hover:opacity-100 hover:grayscale-0"
+                />
+              </div>
             </div>
           ))}
         </div>
@@ -96,15 +99,18 @@ export default function Partners() {
           {logos.map((src, i) => (
             <div
               key={`track2-${i}`}
-              className="flex h-[100px] items-center justify-center shrink-0 px-10"
+              className="flex h-[100px] items-center justify-center shrink-0 sm:px-10"
             >
-              <Image
-                width={100}
-                height={100}
-                src={src}
-                alt="Partner Logo"
-                className="max-h-[50px] opacity-70 grayscale transition hover:scale-110 hover:opacity-100 hover:grayscale-0"
-              />
+              <div className="relative w-[120px] flex items-center justify-center">
+                <Image
+                  width={100}
+                  height={100}
+                  src={src}
+                  alt="Partner Logo"
+                  style={{ objectFit: 'contain' }}
+                  className="max-w-[100px] max-h-[40px] sm:max-h-[45px] lg:max-h-[50px] w-auto opacity-70 grayscale transition hover:scale-110 hover:opacity-100 hover:grayscale-0"
+                />
+              </div>
             </div>
           ))}
         </div>

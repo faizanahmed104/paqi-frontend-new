@@ -68,7 +68,7 @@ export default function NotFound() {
   }, []);
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-sky-300 via-sky-100 to-white overflow-hidden text-center px-6">
+    <div className="relative flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-[#123524] via-sky-100 to-white overflow-hidden text-center px-6">
       {/* Clouds */}
       <svg
         ref={(el) => {
@@ -107,7 +107,7 @@ export default function NotFound() {
       <div className="relative z-20">
         <h1
           ref={textRef}
-          className="relative text-[8rem] lg:text-[10rem] font-extrabold text-sky-600 drop-shadow-xl leading-none"
+          className="relative text-[8rem] lg:text-[10rem] font-extrabold text-[#123524] drop-shadow-xl leading-none"
         >
           404
         </h1>
@@ -125,7 +125,7 @@ export default function NotFound() {
       {/* Home Button */}
       <Link
         href="/"
-        className="z-20 relative bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white px-8 py-3 rounded-full shadow-lg transition-transform duration-300 hover:scale-105"
+        className="z-20 relative bg-gradient-to-r from-green-500 to-[#123524] hover:from-[#123524] hover:to-green-500 text-white px-8 py-3 rounded-full shadow-lg transition-transform duration-300 hover:scale-105"
       >
         Return Home
       </Link>
@@ -144,9 +144,9 @@ export default function NotFound() {
       />
 
       {/* Floating particles */}
-      <div className="absolute bottom-28 left-20 w-3 h-3 bg-sky-400 rounded-full animate-ping z-30" />
-      <div className="absolute top-28 right-32 w-4 h-4 bg-sky-300 rounded-full animate-bounce z-30" />
-      <div className="absolute bottom-44 right-16 w-2 h-2 bg-sky-500 rounded-full animate-pulse z-30" />
+      <div className="absolute bottom-28 left-20 w-3 h-3 bg-green-400 rounded-full animate-ping z-30" />
+      <div className="absolute top-28 right-32 w-4 h-4 bg-green-300 rounded-full animate-bounce z-30" />
+      <div className="absolute bottom-44 right-16 w-2 h-2 bg-green-500 rounded-full animate-pulse z-30" />
     </div>
   );
 }
