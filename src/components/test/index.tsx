@@ -38,7 +38,7 @@ const Test = () => {
   const mapInstance = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
   const [hotspotData, setHotspotData] = useState<any[]>([]);
-  const rotationStarted = useRef<boolean>(false);
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   // City hotspots configuration
   const hotspots = [
@@ -178,6 +178,7 @@ const Test = () => {
         zoom: 2, // Start from zoomed out
         projection: 'globe',
         pitch: 0,
+        antialias: true, // Enable antialiasing for smoother rendering
       });
 
       mapInstance.current = map;
@@ -195,11 +196,11 @@ const Test = () => {
       }, 500);
 
       // Add navigation controls
-      mapInstance.current.addControl(new mapboxgl.NavigationControl());
+      map.addControl(new mapboxgl.NavigationControl());
 
       // Disable map rotation using right click + drag and touch rotation gesture
-      mapInstance.current.dragRotate.disable();
-      mapInstance.current.touchZoomRotate.disableRotation();
+      map.dragRotate.disable();
+      map.touchZoomRotate.disableRotation();
 
       // Add atmosphere and stars for better globe effect
       map.on('style.load', () => {
@@ -210,120 +211,188 @@ const Test = () => {
           'star-intensity': 0.15,
         });
 
-        // Adjust the map style for dark theme
-        map.setPaintProperty('land', 'background-color', '#ffffff');
-        map.setPaintProperty('water', 'fill-color', '#000000');
+        // Add Pakistan boundary data
+        try {
+          map.addSource('pakistan-boundary', {
+            type: 'geojson',
+            data: require('./pakistan.json'),
+          });
 
-        // Add Pakistan boundary data and markers
-        markersRef.current.forEach((marker) => marker.remove());
-        markersRef.current = [];
-        mapInstance.current!.addSource('pakistan-boundary', {
-          type: 'geojson',
-          data: require('./pakistan.json'),
-        });
+          // Add the fill layer
+          map.addLayer({
+            id: 'pakistan-fill',
+            type: 'fill',
+            source: 'pakistan-boundary',
+            paint: {
+              'fill-color': '#13A94B',
+              'fill-opacity': 0.3,
+            },
+          });
 
-        // Add the fill layer
-        mapInstance.current!.addLayer({
-          id: 'pakistan-fill',
-          type: 'fill',
-          source: 'pakistan-boundary',
-          paint: {
-            'fill-color': '#13A94B',
-            'fill-opacity': 0.3,
-          },
-        });
+          // Add the outline layer
+          map.addLayer({
+            id: 'pakistan-outline',
+            type: 'line',
+            source: 'pakistan-boundary',
+            paint: {
+              'line-color': '#13A94B',
+              'line-width': 2,
+            },
+          });
+        } catch (error) {
+          console.error('Error loading Pakistan boundary:', error);
+        }
 
-        // Add the outline layer
-        mapInstance.current!.addLayer({
-          id: 'pakistan-outline',
-          type: 'line',
-          source: 'pakistan-boundary',
-          paint: {
-            'line-color': '#13A94B',
-            'line-width': 2,
-          },
-        });
+        // Mark map as loaded
+        setMapLoaded(true);
       });
     }
 
     // Cleanup
     return () => {
       if (mapInstance.current) {
-        rotationStarted.current = false;
         mapInstance.current.remove();
         mapInstance.current = null;
+        setMapLoaded(false);
       }
     };
   }, []);
 
-  // Add city markers when data is available
+  // Add city markers when data is available and map is loaded
   useEffect(() => {
-    if (!mapInstance.current || !hotspotData.length) return;
+    if (!mapInstance.current || !mapLoaded || !hotspotData.length) return;
 
-    // Clear existing markers
+    const map = mapInstance.current;
+
+    // Clear existing markers and sources
     markersRef.current.forEach((marker) => marker.remove());
     markersRef.current = [];
 
-    hotspots.forEach((hotspot) => {
-      const data = hotspotData.find((d) => d.city === hotspot.city) || {};
-      const { aqi, pm25 } = data;
-      const info = aqiInfo(aqi);
+    // Remove existing sources if they exist
+    if (map.getSource('hotspots')) {
+      map.removeLayer('hotspots-layer');
+      map.removeSource('hotspots');
+    }
 
-      // Create marker element
-      const el = document.createElement('div');
-      el.className =
-        'rounded-full border-2 border-white shadow-lg cursor-pointer transition-all duration-200 hover:scale-125';
-      el.style.width = '20px';
-      el.style.height = '20px';
-      el.style.backgroundColor = info.color;
+    // Create GeoJSON data for hotspots
+    const hotspotsGeoJSON = {
+      type: 'FeatureCollection',
+      features: hotspots.map((hotspot) => {
+        const data = hotspotData.find((d) => d.city === hotspot.city) || {};
+        const { aqi, pm25 } = data;
+        const info = aqiInfo(aqi);
 
-      // Add popup on hover
-      let popup: mapboxgl.Popup | null = null;
-      el.addEventListener('mouseenter', () => {
-        popup = new mapboxgl.Popup({
-          offset: 15,
+        return {
+          type: 'Feature',
+          properties: {
+            city: hotspot.city,
+            aqi: aqi || null,
+            pm25: pm25 || null,
+            status: info.status,
+            color: info.color,
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: hotspot.coordinates,
+          },
+        };
+      }),
+    };
+
+    // Add hotspots source
+    map.addSource('hotspots', {
+      type: 'geojson',
+      data: hotspotsGeoJSON as GeoJSON.FeatureCollection,
+    });
+
+
+    // Add hotspots layer
+    map.addLayer({
+      id: 'hotspots-layer',
+      type: 'circle',
+      source: 'hotspots',
+      paint: {
+        'circle-radius': 10,
+        'circle-color': ['get', 'color'],
+        'circle-stroke-width': 2,
+        'circle-stroke-color': '#ffffff',
+        'circle-opacity': 0.9,
+      },
+    });
+
+    // Add hover effect
+    const handleMouseEnter = (e: mapboxgl.MapMouseEvent) => {
+      map.getCanvas().style.cursor = 'pointer';
+
+      if (e.features && e.features[0]) {
+        const feature = e.features[0];
+        const geometry = feature.geometry as GeoJSON.Point;
+        const coordinates = geometry.coordinates.slice() as [number, number];
+        const properties = feature.properties;
+
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        new mapboxgl.Popup({
           closeButton: false,
           closeOnClick: false,
+          offset: 15,
         })
-          .setLngLat(hotspot.coordinates as [number, number])
+          .setLngLat(coordinates)
           .setHTML(
             `
-                    <div style="min-width:180px; font-family: system-ui; padding: 8px;">
-                        <div style="font-weight:600; margin-bottom:8px; font-size:16px;">${hotspot.city}</div>
-                        <div style="font-size:13px; color:#374151;">
-                            <div style="margin-bottom:4px;">
-                                <strong>AQI:</strong> 
-                                <span style="color:${info.color}; font-weight:600;">${aqi || '—'}</span>
-                            </div>
-                            <div style="margin-bottom:4px;">
-                                <strong>Status:</strong> 
-                                ${info.status === 'USG' ? 'Unhealthy for Sensitive Groups' : info.status}
-                            </div>
-                            <div>
-                                <strong>PM2.5:</strong> 
-                                ${pm25 ? `${pm25.toFixed(1)} μg/m³` : '—'}
-                            </div>
-                        </div>
+            <div style="min-width:180px; font-family: system-ui; padding: 8px;">
+                <div style="font-weight:600; margin-bottom:8px; font-size:16px;">${properties?.city || ''}</div>
+                <div style="font-size:13px; color:#374151;">
+                    <div style="margin-bottom:4px;">
+                        <strong>AQI:</strong> 
+                        <span style="color:${properties?.color || '#9CA3AF'}; font-weight:600;">${properties?.aqi || '—'}</span>
                     </div>
-                `
+                    <div style="margin-bottom:4px;">
+                        <strong>Status:</strong> 
+                        ${properties?.status === 'USG' ? 'Unhealthy for Sensitive Groups' : (properties?.status || '—')}
+                    </div>
+                    <div>
+                        <strong>PM2.5:</strong> 
+                        ${properties?.pm25 ? `${Number(properties.pm25).toFixed(1)} μg/m³` : '—'}
+                    </div>
+                </div>
+            </div>
+            `
           )
-          .addTo(mapInstance.current!);
+          .addTo(map);
+      }
+    };
+
+    const handleMouseLeave = () => {
+      map.getCanvas().style.cursor = '';
+      // Remove all popups
+      const popups = document.getElementsByClassName('mapboxgl-popup');
+      Array.from(popups).forEach((popup) => {
+        popup.remove();
       });
+    };
 
-      el.addEventListener('mouseleave', () => {
-        if (popup) {
-          popup.remove();
-          popup = null;
-        }
-      });
+    map.on('mouseenter', 'hotspots-layer', handleMouseEnter);
+    map.on('mouseleave', 'hotspots-layer', handleMouseLeave);
 
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat(hotspot.coordinates as [number, number])
-        .addTo(mapInstance.current!);
+    // Cleanup function
+    return () => {
+      markersRef.current.forEach((marker) => marker.remove());
+      markersRef.current = [];
 
-      markersRef.current.push(marker);
-    });
-  }, [hotspotData]);
+      if (map.getSource('hotspots')) {
+        map.off('mouseenter', 'hotspots-layer', handleMouseEnter);
+        map.off('mouseleave', 'hotspots-layer', handleMouseLeave);
+        map.removeLayer('hotspots-layer');
+        map.removeSource('hotspots');
+      }
+    };
+  }, [hotspotData, mapLoaded]);
 
   return (
     <div className="relative w-full h-screen">
@@ -331,6 +400,21 @@ const Test = () => {
         ref={mapContainer}
         className="absolute inset-0 rounded-xl overflow-hidden"
       />
+
+      <style jsx global>{`
+        .custom-popup .mapboxgl-popup-content {
+          border-radius: 8px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+          border: 1px solid #e5e7eb;
+          padding: 4px;
+        }
+        .custom-popup .mapboxgl-popup-tip {
+          border-top-color: white;
+        }
+        .mapboxgl-marker {
+          will-change: transform;
+        }
+      `}</style>
     </div>
   );
 };
