@@ -28,11 +28,14 @@ function aqiInfo(aqiNum?: number | null): {
 } {
   const aqi = typeof aqiNum === 'number' ? aqiNum : -1;
 
-  if (aqi >= 0 && aqi <= 50) return { status: 'Good', Icon: Smile, color: '#56AF7E' };
+  if (aqi >= 0 && aqi <= 50)
+    return { status: 'Good', Icon: Smile, color: '#56AF7E' };
   if (aqi <= 100) return { status: 'Moderate', Icon: Meh, color: '#DDAE5B' };
   if (aqi <= 150) return { status: 'USG', Icon: Frown, color: '#E97E3C' }; // Unhealthy for Sensitive Groups
-  if (aqi <= 200) return { status: 'Unhealthy', Icon: AlertTriangle, color: '#CA5C58' };
-  if (aqi <= 300) return { status: 'Very Unhealthy', Icon: OctagonAlert, color: '#A070B6' };
+  if (aqi <= 200)
+    return { status: 'Unhealthy', Icon: AlertTriangle, color: '#CA5C58' };
+  if (aqi <= 300)
+    return { status: 'Very Unhealthy', Icon: OctagonAlert, color: '#A070B6' };
   if (aqi > 300) return { status: 'Hazardous', Icon: Skull, color: '#A52A2A' };
 
   return { status: '—', Icon: Meh, color: '#9CA3AF' }; // default gray
@@ -43,14 +46,15 @@ function getAqius(resp: any): number | null {
 }
 
 const CITIES: CityConfig[] = [
+  { city: 'Lahore', state: 'Punjab', country: 'Pakistan' },
   { city: 'Karachi', state: 'Sindh', country: 'Pakistan' },
   { city: 'Islamabad', state: 'Islamabad', country: 'Pakistan' },
-  { city: 'Lahore', state: 'Punjab', country: 'Pakistan' },
   { city: 'Peshawar', state: 'Khyber Pakhtunkhwa', country: 'Pakistan' },
 ];
 
 const BASE_URL = 'https://api.airvisual.com/v2/city';
-const buildUrl = (c: CityConfig, key: string) => `${BASE_URL}?city=${encodeURIComponent(c.city)}&state=${encodeURIComponent(c.state)}&country=${encodeURIComponent(c.country)}&key=${encodeURIComponent(key)}`;
+const buildUrl = (c: CityConfig, key: string) =>
+  `${BASE_URL}?city=${encodeURIComponent(c.city)}&state=${encodeURIComponent(c.state)}&country=${encodeURIComponent(c.country)}&key=${encodeURIComponent(key)}`;
 
 // ---- Loader ----
 function AirLoader() {
@@ -98,6 +102,13 @@ function AirQualityInsights() {
       // fallback static demo data
       setCityData([
         {
+          city: 'Lahore',
+          aqi: '150',
+          status: 'USG',
+          color: '#E97E3C',
+          icon: <Frown size={28} />,
+        },
+        {
           city: 'Karachi',
           aqi: '80',
           status: 'Moderate',
@@ -110,13 +121,6 @@ function AirQualityInsights() {
           status: 'Good',
           color: '#56AF7E',
           icon: <Smile size={28} />,
-        },
-        {
-          city: 'Lahore',
-          aqi: '150',
-          status: 'USG',
-          color: '#E97E3C',
-          icon: <Frown size={28} />,
         },
         {
           city: 'Peshawar',
@@ -205,12 +209,12 @@ function AirQualityInsights() {
                 </div>
 
                 {/* City Name */}
-                <h3 className="text-base sm:text-lg font-semibold mb-2">
+                <h3 className="text-sm sm:text-lg font-semibold mb-2">
                   {city.city}
                 </h3>
 
                 {/* AQI Value or Loader */}
-                <div className="flex items-center gap-3 min-h-[48px]">
+                <div className="min-h-[48px] relative">
                   {isLoading ? (
                     <AirLoader />
                   ) : (
@@ -218,7 +222,9 @@ function AirQualityInsights() {
                       <div className="text-3xl sm:text-4xl lg:text-[48px] font-bold">
                         {city.aqi}
                       </div>
-                      <div className="air-icon">{city.icon}</div>
+                      <div className="air-icon absolute right-0 bottom-0">
+                        {city.icon}
+                      </div>
                     </>
                   )}
                 </div>
