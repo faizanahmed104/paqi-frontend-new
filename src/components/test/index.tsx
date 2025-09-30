@@ -91,12 +91,6 @@ const Test = () => {
       coordinates: [74.5229, 32.4945],
     },
     {
-      city: 'Attock',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [72.3599, 33.7667],
-    },
-    {
       city: 'Quetta',
       state: 'Balochistan',
       country: 'Pakistan',
@@ -130,7 +124,6 @@ const Test = () => {
         { city: 'Peshawar', aqi: 140, pm25: 82.3 },
         { city: 'Multan', aqi: 95, pm25: 45.6 },
         { city: 'Sialkot', aqi: 85, pm25: 38.2 },
-        { city: 'Attock', aqi: 55, pm25: 25.8 },
         { city: 'Quetta', aqi: 70, pm25: 32.4 },
         { city: 'Hyderabad', aqi: 110, pm25: 58.7 },
         { city: 'Sukkur', aqi: 90, pm25: 42.3 },
@@ -196,7 +189,37 @@ const Test = () => {
       }, 500);
 
       // Add navigation controls
-      map.addControl(new mapboxgl.NavigationControl());
+      map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+      // Add custom home button control
+      class HomeControl {
+        _map: mapboxgl.Map | null = null;
+        _container: HTMLDivElement | null = null;
+
+        onAdd(map: mapboxgl.Map) {
+          this._map = map;
+          this._container = document.createElement('div');
+          this._container.className = 'mapboxgl-ctrl mapboxgl-ctrl-group';
+          this._container.innerHTML = `
+            <button class="home-button" type="button" title="Go to home">
+              <span class="home-icon"></span>
+            </button>
+          `;
+
+          this._container.addEventListener('click', () => {
+            window.location.href = '/';
+          });
+
+          return this._container;
+        }
+
+        onRemove() {
+          this._container?.parentNode?.removeChild(this._container);
+          this._map = null;
+        }
+      }
+
+      map.addControl(new HomeControl(), 'top-right');
 
       // Disable map rotation using right click + drag and touch rotation gesture
       map.dragRotate.disable();
@@ -305,7 +328,6 @@ const Test = () => {
       data: hotspotsGeoJSON as GeoJSON.FeatureCollection,
     });
 
-
     // Add hotspots layer
     map.addLayer({
       id: 'hotspots-layer',
@@ -345,7 +367,7 @@ const Test = () => {
           .setLngLat(coordinates)
           .setHTML(
             `
-            <div style="min-width:180px; font-family: system-ui; padding: 8px;">
+            <div style="min-width:180px; padding: 8px;">
                 <div style="font-weight:600; margin-bottom:8px; font-size:16px;">${properties?.city || ''}</div>
                 <div style="font-size:13px; color:#374151;">
                     <div style="margin-bottom:4px;">
@@ -354,7 +376,7 @@ const Test = () => {
                     </div>
                     <div style="margin-bottom:4px;">
                         <strong>Status:</strong> 
-                        ${properties?.status === 'USG' ? 'Unhealthy for Sensitive Groups' : (properties?.status || '—')}
+                        ${properties?.status === 'USG' ? 'Unhealthy for Sensitive Groups' : properties?.status || '—'}
                     </div>
                     <div>
                         <strong>PM2.5:</strong> 
@@ -396,15 +418,12 @@ const Test = () => {
 
   return (
     <div className="relative w-full h-screen">
-      <div
-        ref={mapContainer}
-        className="absolute inset-0 rounded-xl overflow-hidden"
-      />
+      <div ref={mapContainer} className="absolute inset-0 overflow-hidden" />
 
       <style jsx global>{`
         .custom-popup .mapboxgl-popup-content {
           border-radius: 8px;
-          box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
           border: 1px solid #e5e7eb;
           padding: 4px;
         }
@@ -413,6 +432,26 @@ const Test = () => {
         }
         .mapboxgl-marker {
           will-change: transform;
+        }
+        .home-button {
+          background: none;
+          border: none;
+          width: 29px;
+          height: 29px;
+          padding-top: 4px !important;
+          cursor: pointer;
+        }
+        .home-button:hover {
+          background-color: rgba(0, 0, 0, 0.05);
+        }
+        .home-icon {
+          width: 20px;
+          height: 20px;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: center;
+          background-size: contain;
+          display: inline-block;
         }
       `}</style>
     </div>

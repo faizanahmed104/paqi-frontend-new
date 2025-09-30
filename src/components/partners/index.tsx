@@ -33,8 +33,8 @@ export default function Partners() {
     pos2 = width;
 
     const step = () => {
-      pos1 -= 2; // speed
-      pos2 -= 2;
+      pos1 -= 1; // speed
+      pos2 -= 1;
 
       if (pos1 <= -width) {
         pos1 = pos2 + width;

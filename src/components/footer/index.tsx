@@ -33,9 +33,18 @@ function Footer() {
                   />
                 </div>
                 <h2
-                  className={`text-[14px] sm:text-sm lg:text-2xl xl:text-3xl font-semibold tracking-wide truncate transition-all duration-500 `}
+                  className={`text-[14px] sm:text-sm lg:text-2xl xl:text-3xl font-semibold tracking-wide transition-all duration-500 leading-tight`}
                 >
-                  <Link href="/">Pakistan Air Quality Initiative</Link>
+                  <Link href="/" className="inline-block">
+                    <span className="hidden sm:inline">
+                      Pakistan Air Quality Initiative
+                    </span>
+                    <span className="sm:hidden">
+                      <span className="block">Pakistan</span>
+                      <span className="block">Air Quality</span>
+                      <span className="block">Initiative</span>
+                    </span>
+                  </Link>
                 </h2>
               </div>
 

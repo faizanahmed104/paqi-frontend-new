@@ -222,7 +222,7 @@ function AirQualityInsights() {
                       <div className="text-3xl sm:text-4xl lg:text-[48px] font-bold">
                         {city.aqi}
                       </div>
-                      <div className="air-icon absolute right-0 bottom-0">
+                      <div className="air-icon absolute -right-2 sm:right-0 bottom-[15px]">
                         {city.icon}
                       </div>
                     </>

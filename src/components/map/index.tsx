@@ -94,12 +94,6 @@ function Map() {
       coordinates: [74.5229, 32.4945],
     },
     {
-      city: 'Attock',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [72.3599, 33.7667],
-    },
-    {
       city: 'Quetta',
       state: 'Balochistan',
       country: 'Pakistan',
@@ -134,7 +128,6 @@ function Map() {
         { city: 'Peshawar', aqi: 140, pm25: 82.3 },
         { city: 'Multan', aqi: 95, pm25: 45.6 },
         { city: 'Sialkot', aqi: 85, pm25: 38.2 },
-        { city: 'Attock', aqi: 55, pm25: 25.8 },
         { city: 'Quetta', aqi: 70, pm25: 32.4 },
         { city: 'Hyderabad', aqi: 110, pm25: 58.7 },
         { city: 'Sukkur', aqi: 90, pm25: 42.3 },
@@ -233,10 +226,16 @@ function Map() {
 
     // Cleanup function
     return () => {
-      if (mapInstance.current) {
-        mapInstance.current.remove();
-        mapInstance.current = null;
-        setMapLoaded(false);
+      try {
+        if (mapInstance.current) {
+          if (mapInstance.current.loaded()) {
+            mapInstance.current.remove();
+          }
+          mapInstance.current = null;
+          setMapLoaded(false);
+        }
+      } catch (error) {
+        console.log('Map cleanup warning:', error);
       }
     };
   }, []);
@@ -246,10 +245,16 @@ function Map() {
     const map = mapInstance.current;
     if (!map || !mapLoaded || !hotspotData || hotspotData.length === 0) return;
 
-    // Remove existing sources if they exist
-    if (map.getSource('hotspots')) {
-      map.removeLayer('hotspots-layer');
-      map.removeSource('hotspots');
+    // Remove existing sources if they exist - with safety checks
+    try {
+      if (map.getLayer('hotspots-layer')) {
+        map.removeLayer('hotspots-layer');
+      }
+      if (map.getSource('hotspots')) {
+        map.removeSource('hotspots');
+      }
+    } catch (error) {
+      console.log('Cleanup warning:', error);
     }
 
     // Create GeoJSON data for hotspots
@@ -354,13 +359,21 @@ function Map() {
     map.on('mouseenter', 'hotspots-layer', handleMouseEnter);
     map.on('mouseleave', 'hotspots-layer', handleMouseLeave);
 
-    // Cleanup function
+    // Cleanup function with safety checks
     return () => {
-      if (map.getSource('hotspots')) {
-        map.off('mouseenter', 'hotspots-layer', handleMouseEnter);
-        map.off('mouseleave', 'hotspots-layer', handleMouseLeave);
-        map.removeLayer('hotspots-layer');
-        map.removeSource('hotspots');
+      if (map && map.loaded()) {
+        try {
+          map.off('mouseenter', 'hotspots-layer', handleMouseEnter);
+          map.off('mouseleave', 'hotspots-layer', handleMouseLeave);
+          if (map.getLayer('hotspots-layer')) {
+            map.removeLayer('hotspots-layer');
+          }
+          if (map.getSource('hotspots')) {
+            map.removeSource('hotspots');
+          }
+        } catch (error) {
+          console.log('Cleanup warning:', error);
+        }
       }
     };
   }, [hotspotData, mapLoaded]);
@@ -371,10 +384,10 @@ function Map() {
         <div className="max-w-7xl mx-auto rounded-3xl p-8 lg:p-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left - Interactive Map */}
-            <div className="relative -mx-4 sm:mx-0">
+            <div className="relative -mx-4 -mt-4 sm:mt-0  sm:mx-0">
               <div
                 ref={mapContainer}
-                className="relative rounded-2xl min-h-[400px] lg:min-h-[500px] overflow-hidden"
+                className="relative rounded-xl min-h-[400px] lg:min-h-[500px] overflow-hidden"
               />
               {loading && (
                 <div className="absolute inset-0 bg-white bg-opacity-75 rounded-2xl flex items-center justify-center">
