@@ -9,17 +9,17 @@ export const navItems: NavItem[] = [
   { name: 'Home', href: '/' },
   {
     name: 'Dashboard',
-    href: '/dashboard',
+    href: '#',
     hasDropdown: true,
     children: [
-      { name: 'Overview', href: '/dashboard/overview' },
-      { name: 'Data', href: '/dashboard/data' },
+      { name: 'Overview', href: '#' },
+      { name: 'Data', href: '#' },
     ],
   },
   { name: 'Map', href: '/map' },
   {
     name: 'Insights',
-    hasDropdown: false,
+    href: '/insights',
   },
   { name: 'About us', href: '/about-us' },
   { name: 'Contact us', href: '/contact-us' },

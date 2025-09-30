@@ -1,8 +1,8 @@
 import React from 'react';
 import OurWork from '@/components/our-work';
 
-function OurWorkPage() {
+function InsightsPage() {
   return <OurWork />;
 }
 
-export default OurWorkPage;
+export default InsightsPage;

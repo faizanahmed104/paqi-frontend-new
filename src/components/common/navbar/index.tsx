@@ -134,11 +134,8 @@ function Navbar({ variant = 'default' }: { variant?: 'default' | 'white' }) {
         <div className="px-4 py-3 space-y-1">
           {navItems.map((item, index) => (
             <div key={index}>
-              <button
-                onClick={() =>
-                  setOpenDropdown(openDropdown === item.name ? null : item.name)
-                }
-                className={`w-full flex items-center justify-between px-3 py-3 text-left text-base font-medium rounded-md transition-colors
+              <div
+                className={`w-full flex items-center justify-between px-3 py-3 text-left text-base font-medium rounded-md transition-colors cursor-pointer
                   ${pathname === item.href
                     ? 'text-green-600'
                     : useBlackText
@@ -146,15 +143,30 @@ function Navbar({ variant = 'default' }: { variant?: 'default' | 'white' }) {
                       : 'text-white hover:bg-white/10'
                   }`}
               >
-                <span>{item.name}</span>
+                <Link
+                  href={item.href ?? '#'}
+                  className="flex-1"
+                  onClick={() => {
+                    if (!item.hasDropdown) {
+                      setIsMenuOpen(false);
+                    }
+                  }}
+                >
+                  {item.name}
+                </Link>
                 {item.hasDropdown && (
-                  <ChevronDown
-                    size={16}
-                    className={`transition-transform duration-300 ${openDropdown === item.name ? 'rotate-180' : ''
-                      }`}
-                  />
+                  <button
+                    onClick={() => setOpenDropdown(openDropdown === item.name ? null : item.name)}
+                    className="ml-2"
+                  >
+                    <ChevronDown
+                      size={16}
+                      className={`transition-transform duration-300 ${openDropdown === item.name ? 'rotate-180' : ''
+                        }`}
+                    />
+                  </button>
                 )}
-              </button>
+              </div>
 
               {/* Mobile Dropdown */}
               {item.hasDropdown && item.children && (
