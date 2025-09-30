@@ -160,10 +160,7 @@ function Map() {
             const json = await res.json();
             const aqius = getAqius(json);
             // AirVisual sometimes has different naming for pm2.5; try a few options:
-            const pm25 = json?.data?.current?.pollution?.pm2_5;
-            json?.data?.current?.pollution?.p2?.conc ??
-              json?.data?.current?.pollution?.p2 ??
-              null;
+            const pm25 = json?.data?.current?.pollution?.p2?.conc ?? null;
             return { city: cfg.city, aqi: aqius, pm25 };
           })
         );

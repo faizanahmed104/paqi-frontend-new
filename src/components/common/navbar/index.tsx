@@ -129,7 +129,7 @@ function Navbar({ variant = 'default' }: { variant?: 'default' | 'white' }) {
       {/* Mobile Navigation */}
       <div
         className={`lg:hidden transition-all duration-500 overflow-hidden ${isMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
-          } ${useBlackText ? 'bg-white/95' : 'bg-black/90'} backdrop-blur-md`}
+          } ${useBlackText ? 'bg-white/95' : 'bg-black/50'} backdrop-blur-md`}
       >
         <div className="px-4 py-3 space-y-1">
           {navItems.map((item, index) => (
