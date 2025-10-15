@@ -14,7 +14,6 @@ import {
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!;
 
-// AQI helpers
 function aqiInfo(aqiNum?: number | null) {
   const aqi = typeof aqiNum === 'number' ? aqiNum : -1;
   if (aqi >= 0 && aqi <= 50)
