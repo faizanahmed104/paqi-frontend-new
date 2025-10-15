@@ -7,15 +7,15 @@ interface NavItem {
 
 export const navItems: NavItem[] = [
   { name: 'Home', href: '/' },
-  {
-    name: 'Dashboard',
-    href: '#',
-    hasDropdown: true,
-    children: [
-      { name: 'Overview', href: '#' },
-      { name: 'Data', href: '#' },
-    ],
-  },
+  // {
+  //   name: 'Dashboard',
+  //   href: '#',
+  //   hasDropdown: true,
+  //   children: [
+  //     { name: 'Overview', href: '#' },
+  //     { name: 'Data', href: '#' },
+  //   ],
+  // },
   { name: 'Map', href: '/map' },
   {
     name: 'Insights',

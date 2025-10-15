@@ -168,7 +168,7 @@ const Test = () => {
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
         center: [69.3451, 30.3753], // Center of Pakistan
-        zoom: 2, // Start from zoomed out
+        zoom: 3, // Start from zoomed out
         projection: 'globe',
         pitch: 0,
         antialias: true, // Enable antialiasing for smoother rendering
@@ -179,7 +179,7 @@ const Test = () => {
       // Add globe entrance animation
       setTimeout(() => {
         map.easeTo({
-          zoom: 3.5,
+          zoom: 5,
           center: [69.3451, 30.3753],
           duration: 3000,
           easing: (t) => {

@@ -1,11 +1,11 @@
-import AirQualityInsights from '../air-quality-insights';
-import Counter from '../counter';
-import Header from '../header';
-import Partners from '../partners';
-import Map from '../map';
-import Blog from '../blog';
+import AirQualityInsights from './air-quality-insights';
+import Counter from './counter';
+import Header from './header';
+import Partners from './partners';
+import Map from './map';
+import Blog from './blog';
 import Footer from '../footer';
-import Podcast from '../podcast';
+import Podcast from './podcast';
 
 export default function Home() {
   return (

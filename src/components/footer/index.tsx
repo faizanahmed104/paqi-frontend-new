@@ -111,8 +111,8 @@ function Footer() {
             {/* Column 2: Right side - Contact Section */}
             <div className="lg:pl-12 w-full">
               <div className="space-y-4">
-                <h3 className="text-xl font-semibold text-green-300">
-                  Let's talk
+                <h3 className="text-xl font-semibold text-[#13a94b]">
+                  Subscribe to our newsletter
                 </h3>
 
                 <p className="text-gray-300">
@@ -126,10 +126,10 @@ function Footer() {
                     type="email"
                     placeholder="Enter your email"
                     className="flex-1 bg-[#FFFFFF59]  px-3 sm:px-4 py-2 text-white
-               placeholder-gray-400 focus:outline-none focus:border-green-500 text-sm sm:text-base"
+               placeholder-gray-400 focus:outline-none focus:border-[#13a94b] text-sm sm:text-base"
                   />
                   <button
-                    className="w-32 sm:w-40 bg-green-600 hover:bg-green-500 px-4 sm:px-6 py-2 font-medium
+                    className="w-32 sm:w-40 bg-[#13a94b] hover:bg-white hover:text-black px-4 sm:px-6 py-2 font-medium
                transition-colors duration-200 text-sm sm:text-base whitespace-nowrap"
                   >
                     Go

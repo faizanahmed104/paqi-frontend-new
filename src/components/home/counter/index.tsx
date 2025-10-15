@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { Dot } from 'lucide-react';
 
 function Counter() {
   const [counters, setCounters] = useState([
@@ -15,7 +14,7 @@ function Counter() {
     },
     {
       current: 0,
-      target: 150,
+      target: 170,
       suffix: '+',
       label: 'Monitors Deployed',
       icon: '/assets/impact/reach.svg',
@@ -129,12 +128,6 @@ function Counter() {
             </div>
           ))}
         </div>
-      </div>
-
-      <div className="flex items-center justify-center text-center mt-20 text-gray-500  max-w-xl mx-auto rounded-full font-bold">
-        <Dot size={40} />
-        <span>More Monitors Coming Soon</span>
-        <Dot size={40} />
       </div>
     </div>
   );

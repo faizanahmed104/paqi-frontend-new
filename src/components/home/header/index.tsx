@@ -1,7 +1,7 @@
 'use client';
 
 import Hero from './hero';
-import Navbar from '../common/navbar';
+import Navbar from '../../common/navbar';
 
 function Header() {
   return (
