@@ -18,6 +18,7 @@ export default function Partners() {
     '/assets/partners/pcaa.png',
     '/assets/partners/umt.png',
     '/assets/partners/wwf.png',
+    '/assets/partners/LAACA.png',
   ];
 
   const trackRef1 = useRef<HTMLDivElement>(null);

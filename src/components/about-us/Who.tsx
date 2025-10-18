@@ -4,7 +4,7 @@ function Who() {
   return (
     <section className="text-center my-5">
       <h2 className="section-headline text-2xl font-semibold">
-        <span className="text-green-500">Who</span> Is PAQI ?
+        <span className="text-[#13a94b]">What</span> Is PAQI ?
       </h2>
       <p className="mt-4 max-w-3xl mx-auto text-gray-700">
         Pakistan Air Quality Initiative (PAQI) is an independent research and

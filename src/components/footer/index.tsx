@@ -33,13 +33,13 @@ function Footer() {
                   />
                 </div>
                 <h2
-                  className={`text-[14px] sm:text-sm lg:text-2xl xl:text-3xl font-semibold tracking-wide transition-all duration-500 leading-tight`}
+                  className={`text-[14px] sm:text-sm lg:text-xl font-semibold tracking-wide transition-all duration-500 leading-tight`}
                 >
                   <Link href="/" className="inline-block">
-                    <span className="hidden sm:inline">
+                    <span className="hidden">
                       Pakistan Air Quality Initiative
                     </span>
-                    <span className="sm:hidden">
+                    <span>
                       <span className="block">Pakistan</span>
                       <span className="block">Air Quality</span>
                       <span className="block">Initiative</span>
@@ -52,7 +52,7 @@ function Footer() {
               <div className="flex space-x-4">
                 {/* Instagram */}
                 <a
-                  href="#"
+                  href="https://www.instagram.com/pakairquality/"
                   className="text-gray-300 hover:text-white transition-colors duration-200"
                 >
                   <svg
@@ -66,7 +66,7 @@ function Footer() {
 
                 {/* X (Twitter) */}
                 <a
-                  href="#"
+                  href="https://x.com/PakAirQuality/"
                   className="text-gray-300 hover:text-white transition-colors duration-200"
                 >
                   <svg
@@ -80,7 +80,7 @@ function Footer() {
 
                 {/* Facebook */}
                 <a
-                  href="#"
+                  href="https://www.facebook.com/PakAirQuality/"
                   className="text-gray-300 hover:text-white transition-colors duration-200"
                 >
                   <svg
@@ -94,7 +94,7 @@ function Footer() {
 
                 {/* LinkedIn */}
                 <a
-                  href="#"
+                  href="https://www.linkedin.com/company/pakairquality/"
                   className="text-gray-300 hover:text-white transition-colors duration-200"
                 >
                   <svg

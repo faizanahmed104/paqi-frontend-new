@@ -59,15 +59,12 @@ function Navbar({ variant = 'default' }: { variant?: 'default' | 'white' }) {
               />
             </div>
             <h2
-              className={`text-[14px] sm:text-sm lg:text-2xl xl:text-3xl font-semibold tracking-wide transition-all duration-500 leading-tight ${
+              className={`text-[14px] sm:text-sm lg:text-xl font-semibold tracking-wide transition-all duration-500 leading-tight ${
                 useBlackText ? 'text-black' : 'text-white'
               }`}
             >
               <Link href="/" className="inline-block">
-                <span className="hidden sm:inline">
-                  Pakistan Air Quality Initiative
-                </span>
-                <span className="sm:hidden">
+                <span>
                   <span className="block">Pakistan</span>
                   <span className="block">Air Quality</span>
                   <span className="block">Initiative</span>

@@ -184,9 +184,11 @@ function AirQualityInsights() {
             <h2 className="text-4xl lg:text-5xl font-bold leading-[125%]">
               <span className="text-[#13A94B]">Air Quality</span>
               <br />
-              <span className="text-gray-900">Insights In Top</span>
+              <span className="text-gray-900">Insights In</span>
               <br />
-              <span className="text-gray-900">Urban Air Sheds</span>
+              <span className="text-gray-900">Pakistan's</span>
+              <br />
+              <span className="text-gray-900">Cities</span>
             </h2>
           </div>
 

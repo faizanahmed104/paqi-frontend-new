@@ -9,7 +9,7 @@ function MissionVision() {
             {/* Our Mission */}
             <div className="space-y-6 pr-0 lg:pr-8">
               <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-                Our <span className="text-green-600">Mission</span>
+                Our <span className="text-[#13a94b]">Mission</span>
               </h2>
               <p className="text-gray-700 leading-relaxed text-lg">
                 Our mission in PAQI is to empower everyone to take control of
@@ -28,7 +28,7 @@ function MissionVision() {
             {/* Our Vision */}
             <div className="space-y-6 pl-0 lg:pl-8">
               <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-                Our <span className="text-green-600">Vision</span>
+                Our <span className="text-[#13a94b]">Vision</span>
               </h2>
               <p className="text-gray-700 leading-relaxed text-lg">
                 We envision a future where everyone is aware of the air they are
