@@ -3,36 +3,11 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import {
-  Smile,
-  Meh,
-  Frown,
-  AlertTriangle,
-  OctagonAlert,
-  Skull,
-} from 'lucide-react';
+import { aqiInfo, getAqius } from '@/utils/helpers';
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!;
 
-function aqiInfo(aqiNum?: number | null) {
-  const aqi = typeof aqiNum === 'number' ? aqiNum : -1;
-  if (aqi >= 0 && aqi <= 50)
-    return { status: 'Good', Icon: Smile, color: '#56AF7E' };
-  if (aqi <= 100) return { status: 'Moderate', Icon: Meh, color: '#DDAE5B' };
-  if (aqi <= 150) return { status: 'USG', Icon: Frown, color: '#E97E3C' };
-  if (aqi <= 200)
-    return { status: 'Unhealthy', Icon: AlertTriangle, color: '#CA5C58' };
-  if (aqi <= 300)
-    return { status: 'Very Unhealthy', Icon: OctagonAlert, color: '#A070B6' };
-  if (aqi > 300) return { status: 'Hazardous', Icon: Skull, color: '#A52A2A' };
-  return { status: '—', Icon: Meh, color: '#9CA3AF' };
-}
-
-function getAqius(resp: any): number | null {
-  return resp?.data?.current?.pollution?.aqius ?? null;
-}
-
-const Test = () => {
+const Map = () => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapInstance = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -418,43 +393,8 @@ const Test = () => {
   return (
     <div className="relative w-full h-screen">
       <div ref={mapContainer} className="absolute inset-0 overflow-hidden" />
-
-      <style jsx global>{`
-        .custom-popup .mapboxgl-popup-content {
-          border-radius: 8px;
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-          border: 1px solid #e5e7eb;
-          padding: 4px;
-        }
-        .custom-popup .mapboxgl-popup-tip {
-          border-top-color: white;
-        }
-        .mapboxgl-marker {
-          will-change: transform;
-        }
-        .home-button {
-          background: none;
-          border: none;
-          width: 29px;
-          height: 29px;
-          padding-top: 4px !important;
-          cursor: pointer;
-        }
-        .home-button:hover {
-          background-color: rgba(0, 0, 0, 0.05);
-        }
-        .home-icon {
-          width: 20px;
-          height: 20px;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E");
-          background-repeat: no-repeat;
-          background-position: center;
-          background-size: contain;
-          display: inline-block;
-        }
-      `}</style>
     </div>
   );
 };
 
-export default Test;
+export default Map;

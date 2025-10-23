@@ -4,7 +4,7 @@ import Header from './header';
 import Partners from './partners';
 import Map from './map';
 import Blog from './blog';
-import Footer from '../footer';
+import Footer from '../common/footer';
 import Podcast from './podcast';
 
 export default function Home() {

@@ -5,7 +5,7 @@ import Who from './Who';
 import MissionVision from './MissionVision';
 import Counter from '../home/counter';
 import Partners from '../home/partners';
-import Footer from '../footer';
+import Footer from '../common/footer';
 import Hero from '../common/hero';
 
 function AboutUs() {

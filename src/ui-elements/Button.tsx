@@ -1,8 +1,8 @@
 'use client';
 
-import { cn } from '@/utils/helpers';
-import Link from 'next/link';
 import React from 'react';
+import Link from 'next/link';
+import { cn } from '@/utils/helpers';
 
 type ButtonProps = {
   children: React.ReactNode;
@@ -13,7 +13,7 @@ type ButtonProps = {
   iconRight?: React.ReactNode;
   className?: string;
   onClick?: () => void;
-  href?: string; // for link variant
+  href?: string;
 };
 
 const Button: React.FC<ButtonProps> = ({

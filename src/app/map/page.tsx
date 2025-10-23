@@ -1,8 +1,8 @@
 import React from 'react';
-import Test from '@/components/test';
+import Map from '@/components/map';
 
 const MapPage = () => {
-  return <Test />;
+  return <Map />;
 };
 
 export default MapPage;

@@ -3,7 +3,7 @@
 import React from 'react';
 import Hero from '../common/hero';
 import Form from './Form';
-import Footer from '../footer';
+import Footer from '../common/footer';
 
 function ContactUs() {
   return (

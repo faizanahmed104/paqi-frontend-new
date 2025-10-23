@@ -5,7 +5,7 @@ import Navbar from '../../common/navbar';
 
 function Header() {
   return (
-    <div className="">
+    <div>
       <Navbar />
       <Hero />
     </div>
