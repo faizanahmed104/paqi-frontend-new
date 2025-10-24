@@ -4,116 +4,33 @@ import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { aqiInfo, getAqius } from '@/utils/helpers';
+import { API_KEY, BASE_URL, MAPBOX_ACCESS_TOKEN } from '@/libs/api';
+import { FAKE_HOTSPOTS, HOTSPOTS } from '../common/constant';
 
-mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!;
+mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
-const Map = () => {
+function Map() {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapInstance = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
   const [hotspotData, setHotspotData] = useState<any[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
 
-  // City hotspots configuration
-  const hotspots = [
-    {
-      city: 'Lahore',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [74.3587, 31.5204],
-    },
-    {
-      city: 'Islamabad',
-      state: 'Islamabad',
-      country: 'Pakistan',
-      coordinates: [73.0551, 33.6844],
-    },
-    {
-      city: 'Karachi',
-      state: 'Sindh',
-      country: 'Pakistan',
-      coordinates: [67.0099, 24.8615],
-    },
-    {
-      city: 'Faisalabad',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [73.135, 31.4504],
-    },
-    {
-      city: 'Rawalpindi',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [73.0479, 33.6007],
-    },
-    {
-      city: 'Peshawar',
-      state: 'Khyber Pakhtunkhwa',
-      country: 'Pakistan',
-      coordinates: [71.5249, 34.0151],
-    },
-    {
-      city: 'Multan',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [71.5249, 30.1575],
-    },
-    {
-      city: 'Sialkot',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [74.5229, 32.4945],
-    },
-    {
-      city: 'Quetta',
-      state: 'Balochistan',
-      country: 'Pakistan',
-      coordinates: [67.0099, 30.1798],
-    },
-    {
-      city: 'Hyderabad',
-      state: 'Sindh',
-      country: 'Pakistan',
-      coordinates: [68.3738, 25.396],
-    },
-    {
-      city: 'Sukkur',
-      state: 'Sindh',
-      country: 'Pakistan',
-      coordinates: [68.857, 27.7052],
-    },
-  ];
-
   // Fetch AQI data
   useEffect(() => {
-    const API_KEY = process.env.NEXT_PUBLIC_AIRVISUAL_KEY || '';
-
     if (!API_KEY) {
-      setHotspotData([
-        { city: 'Lahore', aqi: 165, pm25: 95.2 },
-        { city: 'Islamabad', aqi: 45, pm25: 22.1 },
-        { city: 'Karachi', aqi: 88, pm25: 35.8 },
-        { city: 'Faisalabad', aqi: 120, pm25: 68.4 },
-        { city: 'Rawalpindi', aqi: 75, pm25: 30.5 },
-        { city: 'Peshawar', aqi: 140, pm25: 82.3 },
-        { city: 'Multan', aqi: 95, pm25: 45.6 },
-        { city: 'Sialkot', aqi: 85, pm25: 38.2 },
-        { city: 'Quetta', aqi: 70, pm25: 32.4 },
-        { city: 'Hyderabad', aqi: 110, pm25: 58.7 },
-        { city: 'Sukkur', aqi: 90, pm25: 42.3 },
-      ]);
+      setHotspotData(FAKE_HOTSPOTS);
       return;
     }
 
     const controller = new AbortController();
-    const BASE_URL = 'https://api.airvisual.com/v2/city';
     const buildUrl = (c: any, key: string) =>
       `${BASE_URL}?city=${encodeURIComponent(c.city)}&state=${encodeURIComponent(c.state)}&country=${encodeURIComponent(c.country)}&key=${encodeURIComponent(key)}`;
 
     (async () => {
       try {
         const results = await Promise.all(
-          hotspots.map(async (cfg) => {
+          HOTSPOTS.map(async (cfg) => {
             const res = await fetch(buildUrl(cfg, API_KEY), {
               signal: controller.signal,
               cache: 'no-store',
@@ -133,14 +50,14 @@ const Map = () => {
     })();
 
     return () => controller.abort();
-  }, []);
+  }, [API_KEY]);
 
   // Initialize map
   useEffect(() => {
     if (mapContainer.current && !mapInstance.current) {
       const map = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
+        style: 'mapbox://styles/mapbox/standard',
         center: [69.3451, 30.3753], // Center of Pakistan
         zoom: 3, // Start from zoomed out
         projection: 'globe',
@@ -176,7 +93,18 @@ const Map = () => {
           this._container.className = 'mapboxgl-ctrl mapboxgl-ctrl-group';
           this._container.innerHTML = `
             <button class="home-button" type="button" title="Go to home">
-              <span class="home-icon"></span>
+              <span class="home-icon">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  style="margin-left:2px;"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  width="24"
+                  height="24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75M4.5 10.5V21h15V10.5M9 21v-6h6v6"/>
+                </svg>
+              </span>
             </button>
           `;
 
@@ -222,7 +150,7 @@ const Map = () => {
             source: 'pakistan-boundary',
             paint: {
               'fill-color': '#13A94B',
-              'fill-opacity': 0.3,
+              'fill-opacity': 0.1,
             },
           });
 
@@ -266,15 +194,15 @@ const Map = () => {
     markersRef.current = [];
 
     // Remove existing sources if they exist
-    if (map.getSource('hotspots')) {
-      map.removeLayer('hotspots-layer');
-      map.removeSource('hotspots');
+    if (map.getSource('HOTSPOTS')) {
+      map.removeLayer('HOTSPOTS-layer');
+      map.removeSource('HOTSPOTS');
     }
 
-    // Create GeoJSON data for hotspots
+    // Create GeoJSON data for HOTSPOTS
     const hotspotsGeoJSON = {
       type: 'FeatureCollection',
-      features: hotspots.map((hotspot) => {
+      features: HOTSPOTS.map((hotspot) => {
         const data = hotspotData.find((d) => d.city === hotspot.city) || {};
         const { aqi, pm25 } = data;
         const info = aqiInfo(aqi);
@@ -297,7 +225,7 @@ const Map = () => {
     };
 
     // Add hotspots source
-    map.addSource('hotspots', {
+    map.addSource('HOTSPOTS', {
       type: 'geojson',
       data: hotspotsGeoJSON as GeoJSON.FeatureCollection,
     });
@@ -306,7 +234,7 @@ const Map = () => {
     map.addLayer({
       id: 'hotspots-layer',
       type: 'circle',
-      source: 'hotspots',
+      source: 'HOTSPOTS',
       paint: {
         'circle-radius': 10,
         'circle-color': ['get', 'color'],
@@ -381,11 +309,11 @@ const Map = () => {
       markersRef.current.forEach((marker) => marker.remove());
       markersRef.current = [];
 
-      if (map.getSource('hotspots')) {
+      if (map.getSource('HOTSPOTS')) {
         map.off('mouseenter', 'hotspots-layer', handleMouseEnter);
         map.off('mouseleave', 'hotspots-layer', handleMouseLeave);
         map.removeLayer('hotspots-layer');
-        map.removeSource('hotspots');
+        map.removeSource('HOTSPOTS');
       }
     };
   }, [hotspotData, mapLoaded]);

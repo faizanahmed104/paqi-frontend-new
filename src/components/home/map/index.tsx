@@ -3,151 +3,33 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import Button from '@/ui-elements/Button';
-import {
-  Smile,
-  Meh,
-  Frown,
-  AlertTriangle,
-  OctagonAlert,
-  Skull,
-} from 'lucide-react';
 import { AirLoader } from '@/ui-elements/Loader';
+import { API_KEY, buildUrl, controller, MAPBOX_ACCESS_TOKEN } from '@/libs/api';
+import { FAKE_HOTSPOTS, HOTSPOTS } from '@/components/common/constant';
+import { aqiInfo, getAqius } from '@/utils/helpers';
 
-mapboxgl.accessToken =
-  (process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string) || '';
+mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN
 
-/* ---------- AQI helpers ---------- */
-function aqiInfo(aqiNum?: number | null) {
-  const aqi = typeof aqiNum === 'number' ? aqiNum : -1;
-  if (aqi >= 0 && aqi <= 50)
-    return { status: 'Good', Icon: Smile, color: '#56AF7E' };
-  if (aqi <= 100) return { status: 'Moderate', Icon: Meh, color: '#DDAE5B' };
-  if (aqi <= 150) return { status: 'USG', Icon: Frown, color: '#E97E3C' };
-  if (aqi <= 200)
-    return { status: 'Unhealthy', Icon: AlertTriangle, color: '#CA5C58' };
-  if (aqi <= 300)
-    return { status: 'Very Unhealthy', Icon: OctagonAlert, color: '#A070B6' };
-  if (aqi > 300) return { status: 'Hazardous', Icon: Skull, color: '#A52A2A' };
-  return { status: '—', Icon: Meh, color: '#9CA3AF' };
-}
-
-function getAqius(resp: any): number | null {
-  return resp?.data?.current?.pollution?.aqius ?? null;
-}
-
-/* ---------- Component ---------- */
 function Map() {
   const [hotspotData, setHotspotData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [mapLoaded, setMapLoaded] = useState(false);
+
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapInstance = useRef<mapboxgl.Map | null>(null);
 
-  // Hotspot definitions (keeps the original order / list)
-  const hotspots = [
-    {
-      city: 'Lahore',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [74.3587, 31.5204],
-    },
-    {
-      city: 'Islamabad',
-      state: 'Islamabad',
-      country: 'Pakistan',
-      coordinates: [73.0551, 33.6844],
-    },
-    {
-      city: 'Karachi',
-      state: 'Sindh',
-      country: 'Pakistan',
-      coordinates: [67.0099, 24.8615],
-    },
-    {
-      city: 'Faisalabad',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [73.135, 31.4504],
-    },
-    {
-      city: 'Rawalpindi',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [73.0479, 33.6007],
-    },
-    {
-      city: 'Peshawar',
-      state: 'Khyber Pakhtunkhwa',
-      country: 'Pakistan',
-      coordinates: [71.5249, 34.0151],
-    },
-    {
-      city: 'Multan',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [71.5249, 30.1575],
-    },
-    {
-      city: 'Sialkot',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [74.5229, 32.4945],
-    },
-    {
-      city: 'Quetta',
-      state: 'Balochistan',
-      country: 'Pakistan',
-      coordinates: [67.0099, 30.1798],
-    },
-    {
-      city: 'Hyderabad',
-      state: 'Sindh',
-      country: 'Pakistan',
-      coordinates: [68.3738, 25.396],
-    },
-    {
-      city: 'Sukkur',
-      state: 'Sindh',
-      country: 'Pakistan',
-      coordinates: [68.857, 27.7052],
-    },
-  ];
-
-  const API_KEY = process.env.NEXT_PUBLIC_AIRVISUAL_KEY || '';
-
-  /* ---------- fetch AQI data (or fallback) ---------- */
   useEffect(() => {
     if (!API_KEY) {
-      // fallback demo values if key not present
-      setHotspotData([
-        { city: 'Lahore', aqi: 165, pm25: 95.2 },
-        { city: 'Islamabad', aqi: 45, pm25: 22.1 },
-        { city: 'Karachi', aqi: 88, pm25: 35.8 },
-        { city: 'Faisalabad', aqi: 120, pm25: 68.4 },
-        { city: 'Rawalpindi', aqi: 75, pm25: 30.5 },
-        { city: 'Peshawar', aqi: 140, pm25: 82.3 },
-        { city: 'Multan', aqi: 95, pm25: 45.6 },
-        { city: 'Sialkot', aqi: 85, pm25: 38.2 },
-        { city: 'Quetta', aqi: 70, pm25: 32.4 },
-        { city: 'Hyderabad', aqi: 110, pm25: 58.7 },
-        { city: 'Sukkur', aqi: 90, pm25: 42.3 },
-      ]);
+      setHotspotData(FAKE_HOTSPOTS);
       setLoading(false);
       return;
     }
-
-    const controller = new AbortController();
-    const BASE_URL = 'https://api.airvisual.com/v2/city';
-    const buildUrl = (c: any, key: string) =>
-      `${BASE_URL}?city=${encodeURIComponent(c.city)}&state=${encodeURIComponent(c.state)}&country=${encodeURIComponent(
-        c.country
-      )}&key=${encodeURIComponent(key)}`;
 
     setLoading(true);
     (async () => {
       try {
         const results = await Promise.all(
-          hotspots.map(async (cfg) => {
+          HOTSPOTS.map(async (cfg) => {
             const url = buildUrl(cfg, API_KEY);
             const res = await fetch(url, {
               signal: controller.signal,
@@ -178,7 +60,6 @@ function Map() {
     return () => controller.abort();
   }, [API_KEY]);
 
-  /* ---------- init Mapbox map and add Pakistan outline ---------- */
   useEffect(() => {
     if (mapContainer.current && !mapInstance.current) {
       mapInstance.current = new mapboxgl.Map({
@@ -237,12 +118,10 @@ function Map() {
     };
   }, []);
 
-  /* ---------- create markers (after both map and data are ready) ---------- */
   useEffect(() => {
     const map = mapInstance.current;
     if (!map || !mapLoaded || !hotspotData || hotspotData.length === 0) return;
 
-    // Remove existing sources if they exist - with safety checks
     try {
       if (map.getLayer('hotspots-layer')) {
         map.removeLayer('hotspots-layer');
@@ -257,7 +136,7 @@ function Map() {
     // Create GeoJSON data for hotspots
     const hotspotsGeoJSON = {
       type: 'FeatureCollection',
-      features: hotspots.map((hotspot) => {
+      features: HOTSPOTS.map((hotspot) => {
         const data =
           hotspotData.find(
             (d) =>
@@ -287,7 +166,7 @@ function Map() {
     };
 
     // Add hotspots source
-    map.addSource('hotspots', {
+    map.addSource('HOTSPOTS', {
       type: 'geojson',
       data: hotspotsGeoJSON as GeoJSON.FeatureCollection,
     });
@@ -296,7 +175,7 @@ function Map() {
     map.addLayer({
       id: 'hotspots-layer',
       type: 'circle',
-      source: 'hotspots',
+      source: 'HOTSPOTS',
       paint: {
         'circle-radius': 10,
         'circle-color': ['get', 'color'],
@@ -316,9 +195,6 @@ function Map() {
         const coordinates = geometry.coordinates.slice() as [number, number];
         const properties = feature.properties;
 
-        // Ensure that if the map is zoomed out such that multiple
-        // copies of the feature are visible, the popup appears
-        // over the copy being pointed to.
         while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
           coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
         }
@@ -365,8 +241,8 @@ function Map() {
           if (map.getLayer('hotspots-layer')) {
             map.removeLayer('hotspots-layer');
           }
-          if (map.getSource('hotspots')) {
-            map.removeSource('hotspots');
+          if (map.getSource('HOTSPOTS')) {
+            map.removeSource('HOTSPOTS');
           }
         } catch (error) {
           console.log('Cleanup warning:', error);
@@ -428,23 +304,6 @@ function Map() {
           </div>
         </div>
       </div>
-
-      <style jsx global>
-        {`
-          .custom-popup .mapboxgl-popup-content {
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-            border: 1px solid #e5e7eb;
-          }
-          .custom-popup .mapboxgl-popup-tip {
-            border-top-color: white;
-          }
-          .persistent-popup .mapboxgl-popup-content {
-            background-color: #f9fafb;
-            border: 2px solid #13a94b;
-          }
-        `}
-      </style>
     </div>
   );
 }
