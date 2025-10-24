@@ -183,7 +183,7 @@ function Map() {
     if (mapContainer.current && !mapInstance.current) {
       mapInstance.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
+        style: 'mapbox://styles/mapbox/standard',
         center: [71.5, 30.2], // Center Pakistan
         zoom: 3,
       });
