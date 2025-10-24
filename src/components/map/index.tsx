@@ -140,7 +140,7 @@ const Map = () => {
     if (mapContainer.current && !mapInstance.current) {
       const map = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
+        style: 'mapbox://styles/mapbox/standard',
         center: [69.3451, 30.3753], // Center of Pakistan
         zoom: 3, // Start from zoomed out
         projection: 'globe',
@@ -222,7 +222,7 @@ const Map = () => {
             source: 'pakistan-boundary',
             paint: {
               'fill-color': '#13A94B',
-              'fill-opacity': 0.3,
+              'fill-opacity': 0.1,
             },
           });
 
