@@ -2,9 +2,11 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Button from '@/ui-elements/Button';
+import { SLIDE_CATEGORIES, SLIDES } from './constant';
 
 function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0);
+
   const heroRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const activeButtonRef = useRef<HTMLButtonElement>(null);
@@ -29,67 +31,23 @@ function Hero() {
     scrollActiveIntoView();
   }, [currentSlide]);
 
-  const slides = [
-    {
-      id: 1,
-      category: 'Air Quality Monitoring',
-      title: "Protecting Pakistan's Air Quality",
-      subtitle:
-        'Advanced monitoring systems tracking pollution levels across major cities',
-      image: '/hero/slide-1.jpeg',
-      cta: 'READ MORE',
-    },
-    {
-      id: 2,
-      category: 'Environmental Data',
-      title: 'Real-time Environmental Insights',
-      subtitle:
-        'Comprehensive data analysis for better environmental decisions',
-      image: '/hero/slide-2.png',
-      cta: 'READ MORE',
-    },
-    {
-      id: 3,
-      category: 'Health Impact Assessment',
-      title: 'Understanding Air Quality Impact',
-      subtitle:
-        'Research-based insights on air pollution effects on public health',
-      image: '/hero/slide-3.jpg',
-      cta: 'READ MORE',
-    },
-    {
-      id: 4,
-      category: 'Air Quality Solutions',
-      title: 'Building Clean Air Solutions',
-      subtitle:
-        "Innovative approaches to tackle Pakistan's air pollution challenges",
-      image: '/hero/slide-4.jpg',
-      cta: 'READ MORE',
-    },
-  ];
-
-  const slideCategories = [
-    'Air Quality Monitoring',
-    'Environmental Data',
-    'Health Impact Assessment',
-    'Air Quality Solutions',
-  ];
+  
 
   const goToSlide = (index: number) => setCurrentSlide(index);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
+      setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [slides.length]);
+  }, [SLIDES.length]);
 
   return (
     <div
       ref={heroRef}
       className="relative h-[80vh] sm:h-[90vh] lg:h-screen overflow-hidden"
     >
-      {slides.map((slide, index) => (
+      {SLIDES.map((slide, index) => (
         <div
           key={slide.id}
           className={`absolute inset-0 transition-all duration-1000 ease-in-out ${index === currentSlide
@@ -168,7 +126,7 @@ function Hero() {
             {/* Mobile scrollable categories */}
             <div ref={scrollContainerRef} className="lg:hidden w-full overflow-x-auto scrollbar-hide">
               <div className="flex space-x-6 px-4 min-w-max pb-3">
-                {slideCategories.map((category, index) => (
+                {SLIDE_CATEGORIES.map((category, index) => (
                   <button
                     key={index}
                     ref={index === currentSlide ? activeButtonRef : null}
@@ -195,7 +153,7 @@ function Hero() {
 
             {/* Desktop category labels */}
             <div className="hidden lg:flex w-full justify-between">
-              {slideCategories.map((category, index) => (
+              {SLIDE_CATEGORIES.map((category, index) => (
                 <button
                   key={index}
                   onClick={() => goToSlide(index)}
