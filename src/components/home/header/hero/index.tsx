@@ -31,8 +31,6 @@ function Hero() {
     scrollActiveIntoView();
   }, [currentSlide]);
 
-  
-
   const goToSlide = (index: number) => setCurrentSlide(index);
 
   useEffect(() => {
