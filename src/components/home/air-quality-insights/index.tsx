@@ -91,7 +91,7 @@ function AirQualityInsights() {
       y: -6,
       repeat: -1,
       yoyo: true,
-      duration: 1.5,
+      duration: 5,
       ease: 'sine.inOut',
       stagger: 0.3,
     });
@@ -106,28 +106,28 @@ function AirQualityInsights() {
           aqi: '150',
           status: 'USG',
           color: '#E97E3C',
-          icon: <Frown size={28} />,
+          icon: <Frown size={35} />,
         },
         {
           city: 'Karachi',
           aqi: '80',
           status: 'Moderate',
           color: '#DDAE5B',
-          icon: <Meh size={28} />,
+          icon: <Meh size={35} />,
         },
         {
           city: 'Islamabad',
           aqi: '30',
           status: 'Good',
           color: '#56AF7E',
-          icon: <Smile size={28} />,
+          icon: <Smile size={35} />,
         },
         {
           city: 'Peshawar',
           aqi: '180',
           status: 'Unhealthy',
           color: '#CA5C58',
-          icon: <AlertTriangle size={28} />,
+          icon: <AlertTriangle size={35} />,
         },
       ]);
       return;
@@ -224,7 +224,7 @@ function AirQualityInsights() {
                       <div className="text-3xl sm:text-4xl lg:text-[48px] font-bold">
                         {city.aqi}
                       </div>
-                      <div className="air-icon absolute -right-2 sm:right-0 bottom-[15px]">
+                      <div className="air-icon absolute -right-2 sm:right-0 bottom-[5px]">
                         {city.icon}
                       </div>
                     </>

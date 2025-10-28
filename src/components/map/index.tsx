@@ -256,44 +256,64 @@ const Map = () => {
   }, []);
 
   // Add city markers when data is available and map is loaded
+  /* ---------- create markers (after both map and data are ready) ---------- */
   useEffect(() => {
-    if (!mapInstance.current || !mapLoaded || !hotspotData.length) return;
-
     const map = mapInstance.current;
+    if (!map || !mapLoaded || !hotspotData || hotspotData.length === 0) return;
 
-    // Clear existing markers and sources
-    markersRef.current.forEach((marker) => marker.remove());
-    markersRef.current = [];
-
-    // Remove existing sources if they exist
-    if (map.getSource('hotspots')) {
-      map.removeLayer('hotspots-layer');
-      map.removeSource('hotspots');
+    // Remove existing layers/sources if they exist - with safety checks
+    try {
+      if (map.getLayer('hotspots-labels')) {
+        map.removeLayer('hotspots-labels');
+      }
+      if (map.getLayer('hotspots-circles')) {
+        map.removeLayer('hotspots-circles');
+      }
+      if (map.getSource('hotspots')) {
+        map.removeSource('hotspots');
+      }
+    } catch (error) {
+      console.log('Cleanup warning:', error);
     }
 
     // Create GeoJSON data for hotspots
     const hotspotsGeoJSON = {
       type: 'FeatureCollection',
-      features: hotspots.map((hotspot) => {
-        const data = hotspotData.find((d) => d.city === hotspot.city) || {};
-        const { aqi, pm25 } = data;
-        const info = aqiInfo(aqi);
+      // ** MODIFIED: Chain .map() and .filter() to remove cities with null data
+      features: hotspots
+        .map((hotspot) => {
+          const data =
+            hotspotData.find(
+              (d) =>
+                String(d.city).toLowerCase() ===
+                String(hotspot.city).toLowerCase()
+            ) ?? {};
+          const aqi =
+            typeof data.aqi === 'number' ? data.aqi : Number(data.aqi) || null;
+          const pm25 = data.pm25 ?? null;
+          const info = aqiInfo(aqi);
 
-        return {
-          type: 'Feature',
-          properties: {
-            city: hotspot.city,
-            aqi: aqi || null,
-            pm25: pm25 || null,
-            status: info.status,
-            color: info.color,
-          },
-          geometry: {
-            type: 'Point',
-            coordinates: hotspot.coordinates,
-          },
-        };
-      }),
+          // Create a formatted label for the map
+          const pm25Label = pm25 ? Number(pm25).toFixed(0) : '—';
+
+          return {
+            type: 'Feature',
+            properties: {
+              city: hotspot.city,
+              aqi: aqi, // Pass raw aqi for filtering
+              pm25: pm25 || null,
+              pm25Label: pm25Label,
+              status: info.status,
+              color: info.color,
+            },
+            geometry: {
+              type: 'Point',
+              coordinates: hotspot.coordinates,
+            },
+          };
+        })
+        // ** ADDED: This line filters out all features where aqi is not a number
+        .filter((feature) => typeof feature.properties.aqi === 'number'),
     };
 
     // Add hotspots source
@@ -302,17 +322,52 @@ const Map = () => {
       data: hotspotsGeoJSON as GeoJSON.FeatureCollection,
     });
 
-    // Add hotspots layer
+    // Add circle layer
     map.addLayer({
-      id: 'hotspots-layer',
+      id: 'hotspots-circles',
       type: 'circle',
       source: 'hotspots',
       paint: {
-        'circle-radius': 10,
+        // Use a 'step' expression for zoom-based radius
+        'circle-radius': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          5.5, 7,   // At zoom 8 (and below), radius is 5px
+          6, 16  // At zoom 9 (and above), radius is 14px
+        ],
         'circle-color': ['get', 'color'],
-        'circle-stroke-width': 2,
-        'circle-stroke-color': '#ffffff',
-        'circle-opacity': 0.9,
+        'circle-stroke-width': 3,
+        'circle-stroke-color': ['get', 'color'],
+        'circle-stroke-opacity': 0.7,
+        'circle-opacity': 1,
+      },
+    });
+
+    // Add layer for PM2.5 labels
+    map.addLayer({
+      id: 'hotspots-labels',
+      type: 'symbol',
+      source: 'hotspots',
+      minzoom: 5.5,
+      layout: {
+        'text-field': ['get', 'pm25Label'],
+        'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+        'text-size': 12,
+        // 'text-allow-overlap': true,
+        'text-ignore-placement': true,
+      },
+      paint: {
+        'text-color': [
+          'case',
+          [
+            'any',
+            ['==', ['get', 'status'], 'Moderate'],
+            ['==', ['get', 'status'], 'Good'],
+          ],
+          '#333333', // Dark text for light circles
+          '#FFFFFF', // White text for dark circles
+        ],
       },
     });
 
@@ -326,9 +381,6 @@ const Map = () => {
         const coordinates = geometry.coordinates.slice() as [number, number];
         const properties = feature.properties;
 
-        // Ensure that if the map is zoomed out such that multiple
-        // copies of the feature are visible, the popup appears
-        // over the copy being pointed to.
         while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
           coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
         }
@@ -336,29 +388,21 @@ const Map = () => {
         new mapboxgl.Popup({
           closeButton: false,
           closeOnClick: false,
+          className: 'custom-popup',
           offset: 15,
         })
           .setLngLat(coordinates)
           .setHTML(
             `
-            <div style="min-width:180px; padding: 8px;">
-                <div style="font-weight:600; margin-bottom:8px; font-size:16px;">${properties?.city || ''}</div>
-                <div style="font-size:13px; color:#374151;">
-                    <div style="margin-bottom:4px;">
-                        <strong>AQI:</strong> 
-                        <span style="color:${properties?.color || '#9CA3AF'}; font-weight:600;">${properties?.aqi || '—'}</span>
-                    </div>
-                    <div style="margin-bottom:4px;">
-                        <strong>Status:</strong> 
-                        ${properties?.status === 'USG' ? 'Unhealthy for Sensitive Groups' : properties?.status || '—'}
-                    </div>
-                    <div>
-                        <strong>PM2.5:</strong> 
-                        ${properties?.pm25 ? `${Number(properties.pm25).toFixed(1)} μg/m³` : '—'}
-                    </div>
-                </div>
+            <div style="min-width:180px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; padding: 4px;">
+              <div style="font-weight:600; margin-bottom:8px; font-size:16px; color:#111;">${properties?.city}</div>
+              <div style="font-size:13px; color:#374151; line-height:1.4;">
+                <div style="margin-bottom:3px;"><strong>AQI:</strong> <span style="color:${properties?.color}; font-weight:600;">${properties?.aqi ?? '—'}</span></div>
+                <div style="margin-bottom:3px;"><strong>Status:</strong> ${properties?.status === 'USG' ? 'Unhealthy for Sensitive Groups' : properties?.status}</div>
+                <div><strong>PM2.5:</strong> ${properties?.pm25 ? Number(properties.pm25).toFixed(1) : '—'} μg/m³</div>
+              </div>
             </div>
-            `
+          `
           )
           .addTo(map);
       }
@@ -366,26 +410,32 @@ const Map = () => {
 
     const handleMouseLeave = () => {
       map.getCanvas().style.cursor = '';
-      // Remove all popups
       const popups = document.getElementsByClassName('mapboxgl-popup');
-      Array.from(popups).forEach((popup) => {
-        popup.remove();
-      });
+      Array.from(popups).forEach((popup) => popup.remove());
     };
 
-    map.on('mouseenter', 'hotspots-layer', handleMouseEnter);
-    map.on('mouseleave', 'hotspots-layer', handleMouseLeave);
+    // Listen on the circle layer
+    map.on('mouseenter', 'hotspots-circles', handleMouseEnter);
+    map.on('mouseleave', 'hotspots-circles', handleMouseLeave);
 
     // Cleanup function
     return () => {
-      markersRef.current.forEach((marker) => marker.remove());
-      markersRef.current = [];
-
-      if (map.getSource('hotspots')) {
-        map.off('mouseenter', 'hotspots-layer', handleMouseEnter);
-        map.off('mouseleave', 'hotspots-layer', handleMouseLeave);
-        map.removeLayer('hotspots-layer');
-        map.removeSource('hotspots');
+      if (map && map.loaded()) {
+        try {
+          map.off('mouseenter', 'hotspots-circles', handleMouseEnter);
+          map.off('mouseleave', 'hotspots-circles', handleMouseLeave);
+          if (map.getLayer('hotspots-labels')) {
+            map.removeLayer('hotspots-labels');
+          }
+          if (map.getLayer('hotspots-circles')) {
+            map.removeLayer('hotspots-circles');
+          }
+          if (map.getSource('hotspots')) {
+            map.removeSource('hotspots');
+          }
+        } catch (error) {
+          console.log('Cleanup warning:', error);
+        }
       }
     };
   }, [hotspotData, mapLoaded]);

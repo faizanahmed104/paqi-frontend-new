@@ -73,7 +73,7 @@ function Map() {
       city: 'Rawalpindi',
       state: 'Punjab',
       country: 'Pakistan',
-      coordinates: [73.0479, 33.6007],
+      coordinates: [73.0479, 33.5], // Adjusted to prevent overlap
     },
     {
       city: 'Peshawar',
@@ -110,6 +110,175 @@ function Map() {
       state: 'Sindh',
       country: 'Pakistan',
       coordinates: [68.857, 27.7052],
+    },
+    // --- NEW CITIES START HERE ---
+    {
+      city: 'Bahawalpur',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [71.7, 29.39],
+    },
+    {
+      city: 'Bhopalwala',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [74.36, 32.43],
+    },
+    {
+      city: 'Chak Jhumra',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [73.19, 31.56],
+    },
+    {
+      city: 'Daska Kalan',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [74.35, 32.32],
+    },
+    {
+      city: 'Eminabad',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [74.26, 32.04],
+    },
+    {
+      city: 'Gujranwala',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [74.19, 32.1567],
+    },
+    {
+      city: 'Hundal',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [74.52922, 32.42274],
+    },
+    {
+      city: 'Jhang',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [72.33, 31.28],
+    },
+    {
+      city: 'Jhelum',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [73.73, 32.94],
+    },
+    {
+      city: 'Kahna Nau',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [74.369, 31.3671],
+    },
+    {
+      city: 'Kasur',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [74.45, 31.1167],
+    },
+    {
+      city: 'Kotli Loharan',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [74.5, 32.59],
+    },
+    {
+      city: 'Lodhran',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [71.63, 29.55],
+    },
+    {
+      city: 'Mandi Bahauddin',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [73.48, 32.58],
+    },
+    {
+      city: 'Murree',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [73.39, 33.91],
+    },
+    {
+      city: 'Pattoki',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [73.85, 31.02],
+    },
+    {
+      city: 'Qadirpur Ran',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [71.66, 30.29],
+    },
+    {
+      city: 'Rahim Yar Khan',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [70.3, 28.42],
+    },
+    {
+      city: 'Raiwind',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [74.2169, 31.3654],
+    },
+    {
+      city: 'Rojhan',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [70.13, 28.81],
+    },
+    {
+      city: 'Sambrial',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [74.35, 32.48],
+    },
+    {
+      city: 'Sheikhupura',
+      state: 'Punjab',
+      country: 'Pakistan',
+      coordinates: [74.0, 31.71],
+    },
+    {
+      city: "Khairpur Mir's",
+      state: 'Sindh',
+      country: 'Pakistan',
+      coordinates: [68.76, 27.53],
+    },
+    {
+      city: 'Mirpur Khas',
+      state: 'Sindh',
+      country: 'Pakistan',
+      coordinates: [69.01, 25.51],
+    },
+    {
+      city: 'Kharan',
+      state: 'Balochistan',
+      country: 'Pakistan',
+      coordinates: [65.42, 28.59],
+    },
+    {
+      city: 'Abbottabad',
+      state: 'Khyber Pakhtunkhwa',
+      country: 'Pakistan',
+      coordinates: [73.2194, 34.1558],
+    },
+    {
+      city: 'Haripur',
+      state: 'Khyber Pakhtunkhwa',
+      country: 'Pakistan',
+      coordinates: [72.93, 33.99],
+    },
+    {
+      city: 'Malam Jabba',
+      state: 'Khyber Pakhtunkhwa',
+      country: 'Pakistan',
+      coordinates: [72.57, 34.8],
     },
   ];
 
@@ -155,13 +324,14 @@ function Map() {
             });
             if (!res.ok) {
               // don't throw - return placeholder for that city
-              return { city: cfg.city, aqi: null, pm25: null };
+              return { city: cfg.city, aqi: null, pm25: null, timestamp: null };
             }
             const json = await res.json();
             const aqius = getAqius(json);
             // AirVisual sometimes has different naming for pm2.5; try a few options:
             const pm25 = json?.data?.current?.pollution?.p2?.conc ?? null;
-            return { city: cfg.city, aqi: aqius, pm25 };
+            const timestamp = json?.data?.current?.pollution?.ts ?? null;
+            return { city: cfg.city, aqi: aqius, pm25, timestamp };
           })
         );
         // ensure order matches hotspots list (map above returns same order)
@@ -208,6 +378,7 @@ function Map() {
             paint: {
               'line-color': '#13A94B',
               'line-width': 2,
+              'line-opacity': 0.8,
             },
           });
 
@@ -242,10 +413,13 @@ function Map() {
     const map = mapInstance.current;
     if (!map || !mapLoaded || !hotspotData || hotspotData.length === 0) return;
 
-    // Remove existing sources if they exist - with safety checks
+    // Remove existing layers/sources if they exist - with safety checks
     try {
-      if (map.getLayer('hotspots-layer')) {
-        map.removeLayer('hotspots-layer');
+      if (map.getLayer('hotspots-labels')) {
+        map.removeLayer('hotspots-labels');
+      }
+      if (map.getLayer('hotspots-circles')) {
+        map.removeLayer('hotspots-circles');
       }
       if (map.getSource('hotspots')) {
         map.removeSource('hotspots');
@@ -257,33 +431,41 @@ function Map() {
     // Create GeoJSON data for hotspots
     const hotspotsGeoJSON = {
       type: 'FeatureCollection',
-      features: hotspots.map((hotspot) => {
-        const data =
-          hotspotData.find(
-            (d) =>
-              String(d.city).toLowerCase() ===
-              String(hotspot.city).toLowerCase()
-          ) ?? {};
-        const aqi =
-          typeof data.aqi === 'number' ? data.aqi : Number(data.aqi) || null;
-        const pm25 = data.pm25 ?? null;
-        const info = aqiInfo(aqi);
+      features: hotspots
+        .map((hotspot) => {
+          const data =
+            hotspotData.find(
+              (d) =>
+                String(d.city).toLowerCase() ===
+                String(hotspot.city).toLowerCase()
+            ) ?? {};
+          const aqi =
+            typeof data.aqi === 'number' ? data.aqi : Number(data.aqi) || null;
+          const pm25 = data.pm25 ?? null;
+          const info = aqiInfo(aqi);
+          const timestamp = data.timestamp ?? null;
 
-        return {
-          type: 'Feature',
-          properties: {
-            city: hotspot.city,
-            aqi: aqi || null,
-            pm25: pm25 || null,
-            status: info.status,
-            color: info.color,
-          },
-          geometry: {
-            type: 'Point',
-            coordinates: hotspot.coordinates,
-          },
-        };
-      }),
+          // Create a formatted label for the map
+          const pm25Label = pm25 ? Number(pm25).toFixed(0) : '—';
+
+          return {
+            type: 'Feature',
+            properties: {
+              city: hotspot.city,
+              aqi: aqi, // Pass raw aqi for filtering
+              pm25: pm25 || null,
+              pm25Label: pm25Label,
+              status: info.status,
+              color: info.color,
+              timestamp: timestamp,
+            },
+            geometry: {
+              type: 'Point',
+              coordinates: hotspot.coordinates,
+            },
+          };
+        })
+        .filter((feature) => typeof feature.properties.aqi === 'number'),
     };
 
     // Add hotspots source
@@ -292,17 +474,51 @@ function Map() {
       data: hotspotsGeoJSON as GeoJSON.FeatureCollection,
     });
 
-    // Add hotspots layer
+    // Add circle layer
     map.addLayer({
-      id: 'hotspots-layer',
+      id: 'hotspots-circles',
       type: 'circle',
       source: 'hotspots',
       paint: {
-        'circle-radius': 10,
+        'circle-radius': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          5, 5,
+          6, 14
+        ],
         'circle-color': ['get', 'color'],
-        'circle-stroke-width': 2,
-        'circle-stroke-color': '#ffffff',
-        'circle-opacity': 0.9,
+        'circle-stroke-width': 3,
+        'circle-stroke-color': ['get', 'color'],
+        'circle-stroke-opacity': 0.7,
+        'circle-opacity': 1,
+      },
+    });
+
+    // Add layer for PM2.5 labels
+    map.addLayer({
+      id: 'hotspots-labels',
+      type: 'symbol',
+      source: 'hotspots',
+      minzoom: 7,
+      layout: {
+        'text-field': ['get', 'pm25Label'],
+        'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+        'text-size': 11,
+        // 'text-allow-overlap': true,
+        'text-ignore-placement': true,
+      },
+      paint: {
+        'text-color': [
+          'case',
+          [
+            'any',
+            ['==', ['get', 'status'], 'Moderate'],
+            ['==', ['get', 'status'], 'Good'],
+          ],
+          '#333333', // Dark text for light circles
+          '#FFFFFF', // White text for dark circles
+        ],
       },
     });
 
@@ -316,11 +532,20 @@ function Map() {
         const coordinates = geometry.coordinates.slice() as [number, number];
         const properties = feature.properties;
 
-        // Ensure that if the map is zoomed out such that multiple
-        // copies of the feature are visible, the popup appears
-        // over the copy being pointed to.
         while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
           coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        // Conditionally create the timestamp HTML
+        let timestampHtml = '';
+        
+        // Only if the timestamp exists (i.e., not fallback data), create the HTML line
+        if (properties?.timestamp) {
+          const ts = new Date(properties.timestamp).toLocaleString(undefined, {
+            dateStyle: 'short',
+            timeStyle: 'short',
+          });
+          timestampHtml = `<div style="border-top: 1px solid #eee; margin-top: 5px; padding-top: 5px; font-size: 12px; color: #555;"><strong>Last Update:</strong> ${ts}</div>`;
         }
 
         new mapboxgl.Popup({
@@ -337,7 +562,8 @@ function Map() {
               <div style="font-size:13px; color:#374151; line-height:1.4;">
                 <div style="margin-bottom:3px;"><strong>AQI:</strong> <span style="color:${properties?.color}; font-weight:600;">${properties?.aqi ?? '—'}</span></div>
                 <div style="margin-bottom:3px;"><strong>Status:</strong> ${properties?.status === 'USG' ? 'Unhealthy for Sensitive Groups' : properties?.status}</div>
-                <div><strong>PM2.5:</strong> ${properties?.pm25 ? Number(properties.pm25).toFixed(1) : '—'} μg/m³</div>
+                <div style="margin-bottom:3px;"><strong>PM2.5:</strong> ${properties?.pm25 ? Number(properties.pm25).toFixed(1) : '—'} μg/m³</div>
+                ${timestampHtml}
               </div>
             </div>
           `
@@ -348,22 +574,25 @@ function Map() {
 
     const handleMouseLeave = () => {
       map.getCanvas().style.cursor = '';
-      // Remove all popups
       const popups = document.getElementsByClassName('mapboxgl-popup');
       Array.from(popups).forEach((popup) => popup.remove());
     };
 
-    map.on('mouseenter', 'hotspots-layer', handleMouseEnter);
-    map.on('mouseleave', 'hotspots-layer', handleMouseLeave);
+    // Listen on the circle layer
+    map.on('mouseenter', 'hotspots-circles', handleMouseEnter);
+    map.on('mouseleave', 'hotspots-circles', handleMouseLeave);
 
-    // Cleanup function with safety checks
+    // Cleanup function
     return () => {
       if (map && map.loaded()) {
         try {
-          map.off('mouseenter', 'hotspots-layer', handleMouseEnter);
-          map.off('mouseleave', 'hotspots-layer', handleMouseLeave);
-          if (map.getLayer('hotspots-layer')) {
-            map.removeLayer('hotspots-layer');
+          map.off('mouseenter', 'hotspots-circles', handleMouseEnter);
+          map.off('mouseleave', 'hotspots-circles', handleMouseLeave);
+          if (map.getLayer('hotspots-labels')) {
+            map.removeLayer('hotspots-labels');
+          }
+          if (map.getLayer('hotspots-circles')) {
+            map.removeLayer('hotspots-circles');
           }
           if (map.getSource('hotspots')) {
             map.removeSource('hotspots');

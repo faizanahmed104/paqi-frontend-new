@@ -1,20 +1,20 @@
 export const CARDS = [
   {
     img: '/hero/slide-1.jpeg',
-    title: 'How to Choose the Right Air Purifier',
-    text: 'A practical guide to understanding HEPA filters, CADR ratings, and finding the perfect device for your space.',
-    category: 'Technology Report',
-  },
-  {
-    img: '/hero/slide-1.jpeg',
-    title: 'Policy on Vehicular Emissions',
-    text: 'Our latest recommendations for the government to tackle traffic pollution, one of the largest sources of smog.',
-    category: 'Policy Brief',
-  },
-  {
-    img: '/hero/slide-1.jpeg',
-    title: 'Air Quality Research Findings',
-    text: 'Latest scientific research on air quality patterns and their impact on public health in urban areas.',
+    title: 'Unveiling Karachi\'s Air: A Scientific Foundation for a Clean Air City',
+    text: 'A study to estimate annual pollutant contribution in Karachi identifying major sectoral contributors such as transport, industry, domestic, etc.',
     category: 'Research Report',
+  },
+  {
+    img: '/hero/slide-1.jpeg',
+    title: 'The State of Air Pollution in Pakistan',
+    text: 'In-depth landscape report with analysis, insights and recommendations for the government to tackle ever-growing air pollution, one of the largest sources of smog in urban cores of Pakistan.',
+    category: 'Policy Report',
+  },
+  {
+    img: '/hero/slide-1.jpeg',
+    title: 'Population-Centric Optimization of Air Quality Monitoring Network',
+    text: 'Latest scientific research on developing an air quality monitoring network based on satellite-derived population data to maximize exposure assessment.',
+    category: 'Research Paper',
   },
 ];
