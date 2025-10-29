@@ -3,43 +3,18 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import Button from '@/ui-elements/Button';
-import {
-  Smile,
-  Meh,
-  Frown,
-  AlertTriangle,
-  OctagonAlert,
-  Skull,
-} from 'lucide-react';
 import { AirLoader } from '@/ui-elements/Loader';
+import { API_KEY, buildUrl, controller, MAPBOX_ACCESS_TOKEN } from '@/libs/api';
+import { FAKE_HOTSPOTS, HOTSPOTS } from '@/components/common/constant';
+import { aqiInfo, getAqius } from '@/utils/helpers';
 
-mapboxgl.accessToken =
-  (process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string) || '';
+mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN
 
-/* ---------- AQI helpers ---------- */
-function aqiInfo(aqiNum?: number | null) {
-  const aqi = typeof aqiNum === 'number' ? aqiNum : -1;
-  if (aqi >= 0 && aqi <= 50)
-    return { status: 'Good', Icon: Smile, color: '#56AF7E' };
-  if (aqi <= 100) return { status: 'Moderate', Icon: Meh, color: '#DDAE5B' };
-  if (aqi <= 150) return { status: 'USG', Icon: Frown, color: '#E97E3C' };
-  if (aqi <= 200)
-    return { status: 'Unhealthy', Icon: AlertTriangle, color: '#CA5C58' };
-  if (aqi <= 300)
-    return { status: 'Very Unhealthy', Icon: OctagonAlert, color: '#A070B6' };
-  if (aqi > 300) return { status: 'Hazardous', Icon: Skull, color: '#A52A2A' };
-  return { status: '—', Icon: Meh, color: '#9CA3AF' };
-}
-
-function getAqius(resp: any): number | null {
-  return resp?.data?.current?.pollution?.aqius ?? null;
-}
-
-/* ---------- Component ---------- */
 function Map() {
   const [hotspotData, setHotspotData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [mapLoaded, setMapLoaded] = useState(false);
+
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapInstance = useRef<mapboxgl.Map | null>(null);
 
@@ -73,7 +48,7 @@ function Map() {
       city: 'Rawalpindi',
       state: 'Punjab',
       country: 'Pakistan',
-      coordinates: [73.0479, 33.5], // Adjusted to prevent overlap
+      coordinates: [73.0479, 33.6007],
     },
     {
       city: 'Peshawar',
@@ -111,175 +86,6 @@ function Map() {
       country: 'Pakistan',
       coordinates: [68.857, 27.7052],
     },
-    // --- NEW CITIES START HERE ---
-    {
-      city: 'Bahawalpur',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [71.7, 29.39],
-    },
-    {
-      city: 'Bhopalwala',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [74.36, 32.43],
-    },
-    {
-      city: 'Chak Jhumra',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [73.19, 31.56],
-    },
-    {
-      city: 'Daska Kalan',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [74.35, 32.32],
-    },
-    {
-      city: 'Eminabad',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [74.26, 32.04],
-    },
-    {
-      city: 'Gujranwala',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [74.19, 32.1567],
-    },
-    {
-      city: 'Hundal',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [74.52922, 32.42274],
-    },
-    {
-      city: 'Jhang',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [72.33, 31.28],
-    },
-    {
-      city: 'Jhelum',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [73.73, 32.94],
-    },
-    {
-      city: 'Kahna Nau',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [74.369, 31.3671],
-    },
-    {
-      city: 'Kasur',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [74.45, 31.1167],
-    },
-    {
-      city: 'Kotli Loharan',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [74.5, 32.59],
-    },
-    {
-      city: 'Lodhran',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [71.63, 29.55],
-    },
-    {
-      city: 'Mandi Bahauddin',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [73.48, 32.58],
-    },
-    {
-      city: 'Murree',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [73.39, 33.91],
-    },
-    {
-      city: 'Pattoki',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [73.85, 31.02],
-    },
-    {
-      city: 'Qadirpur Ran',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [71.66, 30.29],
-    },
-    {
-      city: 'Rahim Yar Khan',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [70.3, 28.42],
-    },
-    {
-      city: 'Raiwind',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [74.2169, 31.3654],
-    },
-    {
-      city: 'Rojhan',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [70.13, 28.81],
-    },
-    {
-      city: 'Sambrial',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [74.35, 32.48],
-    },
-    {
-      city: 'Sheikhupura',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [74.0, 31.71],
-    },
-    {
-      city: "Khairpur Mir's",
-      state: 'Sindh',
-      country: 'Pakistan',
-      coordinates: [68.76, 27.53],
-    },
-    {
-      city: 'Mirpur Khas',
-      state: 'Sindh',
-      country: 'Pakistan',
-      coordinates: [69.01, 25.51],
-    },
-    {
-      city: 'Kharan',
-      state: 'Balochistan',
-      country: 'Pakistan',
-      coordinates: [65.42, 28.59],
-    },
-    {
-      city: 'Abbottabad',
-      state: 'Khyber Pakhtunkhwa',
-      country: 'Pakistan',
-      coordinates: [73.2194, 34.1558],
-    },
-    {
-      city: 'Haripur',
-      state: 'Khyber Pakhtunkhwa',
-      country: 'Pakistan',
-      coordinates: [72.93, 33.99],
-    },
-    {
-      city: 'Malam Jabba',
-      state: 'Khyber Pakhtunkhwa',
-      country: 'Pakistan',
-      coordinates: [72.57, 34.8],
-    },
   ];
 
   const API_KEY = process.env.NEXT_PUBLIC_AIRVISUAL_KEY || '';
@@ -287,36 +93,16 @@ function Map() {
   /* ---------- fetch AQI data (or fallback) ---------- */
   useEffect(() => {
     if (!API_KEY) {
-      // fallback demo values if key not present
-      setHotspotData([
-        { city: 'Lahore', aqi: 165, pm25: 95.2 },
-        { city: 'Islamabad', aqi: 45, pm25: 22.1 },
-        { city: 'Karachi', aqi: 88, pm25: 35.8 },
-        { city: 'Faisalabad', aqi: 120, pm25: 68.4 },
-        { city: 'Rawalpindi', aqi: 75, pm25: 30.5 },
-        { city: 'Peshawar', aqi: 140, pm25: 82.3 },
-        { city: 'Multan', aqi: 95, pm25: 45.6 },
-        { city: 'Sialkot', aqi: 85, pm25: 38.2 },
-        { city: 'Quetta', aqi: 70, pm25: 32.4 },
-        { city: 'Hyderabad', aqi: 110, pm25: 58.7 },
-        { city: 'Sukkur', aqi: 90, pm25: 42.3 },
-      ]);
+      setHotspotData(FAKE_HOTSPOTS);
       setLoading(false);
       return;
     }
-
-    const controller = new AbortController();
-    const BASE_URL = 'https://api.airvisual.com/v2/city';
-    const buildUrl = (c: any, key: string) =>
-      `${BASE_URL}?city=${encodeURIComponent(c.city)}&state=${encodeURIComponent(c.state)}&country=${encodeURIComponent(
-        c.country
-      )}&key=${encodeURIComponent(key)}`;
 
     setLoading(true);
     (async () => {
       try {
         const results = await Promise.all(
-          hotspots.map(async (cfg) => {
+          HOTSPOTS.map(async (cfg) => {
             const url = buildUrl(cfg, API_KEY);
             const res = await fetch(url, {
               signal: controller.signal,
@@ -348,7 +134,6 @@ function Map() {
     return () => controller.abort();
   }, [API_KEY]);
 
-  /* ---------- init Mapbox map and add Pakistan outline ---------- */
   useEffect(() => {
     if (mapContainer.current && !mapInstance.current) {
       mapInstance.current = new mapboxgl.Map({
@@ -408,12 +193,11 @@ function Map() {
     };
   }, []);
 
-  /* ---------- create markers (after both map and data are ready) ---------- */
   useEffect(() => {
     const map = mapInstance.current;
     if (!map || !mapLoaded || !hotspotData || hotspotData.length === 0) return;
 
-    // Remove existing layers/sources if they exist - with safety checks
+    // Remove existing sources if they exist - with safety checks
     try {
       if (map.getLayer('hotspots-labels')) {
         map.removeLayer('hotspots-labels');
@@ -431,22 +215,17 @@ function Map() {
     // Create GeoJSON data for hotspots
     const hotspotsGeoJSON = {
       type: 'FeatureCollection',
-      features: hotspots
-        .map((hotspot) => {
-          const data =
-            hotspotData.find(
-              (d) =>
-                String(d.city).toLowerCase() ===
-                String(hotspot.city).toLowerCase()
-            ) ?? {};
-          const aqi =
-            typeof data.aqi === 'number' ? data.aqi : Number(data.aqi) || null;
-          const pm25 = data.pm25 ?? null;
-          const info = aqiInfo(aqi);
-          const timestamp = data.timestamp ?? null;
-
-          // Create a formatted label for the map
-          const pm25Label = pm25 ? Number(pm25).toFixed(0) : '—';
+      features: hotspots.map((hotspot) => {
+        const data =
+          hotspotData.find(
+            (d) =>
+              String(d.city).toLowerCase() ===
+              String(hotspot.city).toLowerCase()
+          ) ?? {};
+        const aqi =
+          typeof data.aqi === 'number' ? data.aqi : Number(data.aqi) || null;
+        const pm25 = data.pm25 ?? null;
+        const info = aqiInfo(aqi);
 
           return {
             type: 'Feature',
@@ -469,7 +248,7 @@ function Map() {
     };
 
     // Add hotspots source
-    map.addSource('hotspots', {
+    map.addSource('HOTSPOTS', {
       type: 'geojson',
       data: hotspotsGeoJSON as GeoJSON.FeatureCollection,
     });
@@ -478,7 +257,7 @@ function Map() {
     map.addLayer({
       id: 'hotspots-circles',
       type: 'circle',
-      source: 'hotspots',
+      source: 'HOTSPOTS',
       paint: {
         'circle-radius': [
           'interpolate',
@@ -594,8 +373,8 @@ function Map() {
           if (map.getLayer('hotspots-circles')) {
             map.removeLayer('hotspots-circles');
           }
-          if (map.getSource('hotspots')) {
-            map.removeSource('hotspots');
+          if (map.getSource('HOTSPOTS')) {
+            map.removeSource('HOTSPOTS');
           }
         } catch (error) {
           console.log('Cleanup warning:', error);
@@ -657,23 +436,6 @@ function Map() {
           </div>
         </div>
       </div>
-
-      <style jsx global>
-        {`
-          .custom-popup .mapboxgl-popup-content {
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-            border: 1px solid #e5e7eb;
-          }
-          .custom-popup .mapboxgl-popup-tip {
-            border-top-color: white;
-          }
-          .persistent-popup .mapboxgl-popup-content {
-            background-color: #f9fafb;
-            border: 2px solid #13a94b;
-          }
-        `}
-      </style>
     </div>
   );
 }

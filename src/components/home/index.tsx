@@ -4,10 +4,10 @@ import Header from './header';
 import Partners from './partners';
 import Map from './map';
 import Blog from './blog';
-import Footer from '../common/footer';
 import Podcast from './podcast';
+import Footer from '../common/footer';
 
-export default function Home() {
+function Home() {
   return (
     <main className="min-h-screen bg-white">
       <Header />
@@ -21,3 +21,5 @@ export default function Home() {
     </main>
   );
 }
+
+export default Home;

@@ -2,9 +2,11 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Button from '@/ui-elements/Button';
+import { SLIDE_CATEGORIES, SLIDES } from './constant';
 
 function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0);
+
   const heroRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const activeButtonRef = useRef<HTMLButtonElement>(null);
@@ -79,17 +81,17 @@ function Hero() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
+      setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [slides.length]);
+  }, [SLIDES.length]);
 
   return (
     <div
       ref={heroRef}
       className="relative h-[80vh] sm:h-[90vh] lg:h-screen overflow-hidden"
     >
-      {slides.map((slide, index) => (
+      {SLIDES.map((slide, index) => (
         <div
           key={slide.id}
           className={`absolute inset-0 transition-all duration-1000 ease-in-out ${index === currentSlide
@@ -168,7 +170,7 @@ function Hero() {
             {/* Mobile scrollable categories */}
             <div ref={scrollContainerRef} className="lg:hidden w-full overflow-x-auto scrollbar-hide">
               <div className="flex space-x-6 px-4 min-w-max pb-3">
-                {slideCategories.map((category, index) => (
+                {SLIDE_CATEGORIES.map((category, index) => (
                   <button
                     key={index}
                     ref={index === currentSlide ? activeButtonRef : null}
@@ -195,7 +197,7 @@ function Hero() {
 
             {/* Desktop category labels */}
             <div className="hidden lg:flex w-full justify-between">
-              {slideCategories.map((category, index) => (
+              {SLIDE_CATEGORIES.map((category, index) => (
                 <button
                   key={index}
                   onClick={() => goToSlide(index)}
