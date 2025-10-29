@@ -17,76 +17,9 @@ function Map() {
 
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapInstance = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<mapboxgl.Marker[]>([]);
 
-  // Hotspot definitions (keeps the original order / list)
-  const hotspots = [
-    {
-      city: 'Lahore',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [74.3587, 31.5204],
-    },
-    {
-      city: 'Islamabad',
-      state: 'Islamabad',
-      country: 'Pakistan',
-      coordinates: [73.0551, 33.6844],
-    },
-    {
-      city: 'Karachi',
-      state: 'Sindh',
-      country: 'Pakistan',
-      coordinates: [67.0099, 24.8615],
-    },
-    {
-      city: 'Faisalabad',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [73.135, 31.4504],
-    },
-    {
-      city: 'Rawalpindi',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [73.0479, 33.6007],
-    },
-    {
-      city: 'Peshawar',
-      state: 'Khyber Pakhtunkhwa',
-      country: 'Pakistan',
-      coordinates: [71.5249, 34.0151],
-    },
-    {
-      city: 'Multan',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [71.5249, 30.1575],
-    },
-    {
-      city: 'Sialkot',
-      state: 'Punjab',
-      country: 'Pakistan',
-      coordinates: [74.5229, 32.4945],
-    },
-    {
-      city: 'Quetta',
-      state: 'Balochistan',
-      country: 'Pakistan',
-      coordinates: [67.0099, 30.1798],
-    },
-    {
-      city: 'Hyderabad',
-      state: 'Sindh',
-      country: 'Pakistan',
-      coordinates: [68.3738, 25.396],
-    },
-    {
-      city: 'Sukkur',
-      state: 'Sindh',
-      country: 'Pakistan',
-      coordinates: [68.857, 27.7052],
-    },
-  ];
+
 
   const API_KEY = process.env.NEXT_PUBLIC_AIRVISUAL_KEY || '';
 
@@ -197,35 +130,32 @@ function Map() {
     const map = mapInstance.current;
     if (!map || !mapLoaded || !hotspotData || hotspotData.length === 0) return;
 
-    // Remove existing sources if they exist - with safety checks
-    try {
-      if (map.getLayer('hotspots-labels')) {
-        map.removeLayer('hotspots-labels');
-      }
-      if (map.getLayer('hotspots-circles')) {
-        map.removeLayer('hotspots-circles');
-      }
-      if (map.getSource('hotspots')) {
-        map.removeSource('hotspots');
-      }
-    } catch (error) {
-      console.log('Cleanup warning:', error);
+    // Clear existing markers and sources
+    markersRef.current.forEach((marker) => marker.remove());
+    markersRef.current = [];
+
+    // Remove existing sources if they exist
+    if (map.getSource('HOTSPOTS')) {
+      map.removeLayer('HOTSPOTS-layer');
+      map.removeSource('HOTSPOTS');
     }
 
-    // Create GeoJSON data for hotspots
+
+    // Calculate the cutoff time (1 hour ago)
+    const oneHourAgo = new Date(Date.now() - 7200 * 1000);
+
+    // Create GeoJSON data for HOTSPOTS
     const hotspotsGeoJSON = {
       type: 'FeatureCollection',
-      features: hotspots.map((hotspot) => {
-        const data =
-          hotspotData.find(
-            (d) =>
-              String(d.city).toLowerCase() ===
-              String(hotspot.city).toLowerCase()
-          ) ?? {};
-        const aqi =
-          typeof data.aqi === 'number' ? data.aqi : Number(data.aqi) || null;
-        const pm25 = data.pm25 ?? null;
+      features: HOTSPOTS.map((hotspot) => {
+        const data = hotspotData.find((d) => d.city === hotspot.city) || {};
+        const { aqi, pm25 } = data;
         const info = aqiInfo(aqi);
+        const timestamp = data.timestamp ?? null;
+
+          // Create a formatted label for the map
+          const pm25Label = pm25 ? Number(pm25).toFixed(0) : '—';
+          
 
           return {
             type: 'Feature',
@@ -236,7 +166,7 @@ function Map() {
               pm25Label: pm25Label,
               status: info.status,
               color: info.color,
-              timestamp: timestamp,
+              timestamp: timestamp ?? null,
             },
             geometry: {
               type: 'Point',
@@ -244,7 +174,25 @@ function Map() {
             },
           };
         })
-        .filter((feature) => typeof feature.properties.aqi === 'number'),
+        // This line filters out all features where aqi is not a number
+        .filter((feature) => {
+          const aqi = feature.properties.aqi;
+          const ts = feature.properties.timestamp;
+
+          // 1. Must have a valid AQI
+          const hasValidAqi = typeof aqi === 'number';
+
+          // 2. Must have a timestamp (this filters out fallback data)
+          if (!ts) {
+            return false;
+          }
+
+          // 3. Timestamp must be more recent than 1 hour ago
+          const featureTime = new Date(ts);
+          const isRecent = featureTime > oneHourAgo;
+
+          return hasValidAqi && isRecent;
+        }),
     };
 
     // Add hotspots source
@@ -259,12 +207,13 @@ function Map() {
       type: 'circle',
       source: 'HOTSPOTS',
       paint: {
+        // Use a 'step' expression for zoom-based radius
         'circle-radius': [
           'interpolate',
           ['linear'],
           ['zoom'],
-          5, 5,
-          6, 14
+          5.5, 7,   // At zoom 8 (and below), radius is 5px
+          6, 16  // At zoom 9 (and above), radius is 14px
         ],
         'circle-color': ['get', 'color'],
         'circle-stroke-width': 3,
@@ -278,12 +227,12 @@ function Map() {
     map.addLayer({
       id: 'hotspots-labels',
       type: 'symbol',
-      source: 'hotspots',
-      minzoom: 7,
+      source: 'HOTSPOTS',
+      minzoom: 6,
       layout: {
         'text-field': ['get', 'pm25Label'],
         'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-        'text-size': 11,
+        'text-size': 12,
         // 'text-allow-overlap': true,
         'text-ignore-placement': true,
       },
@@ -321,10 +270,10 @@ function Map() {
         // Only if the timestamp exists (i.e., not fallback data), create the HTML line
         if (properties?.timestamp) {
           const ts = new Date(properties.timestamp).toLocaleString(undefined, {
-            dateStyle: 'short',
+            dateStyle: 'long',
             timeStyle: 'short',
           });
-          timestampHtml = `<div style="border-top: 1px solid #eee; margin-top: 5px; padding-top: 5px; font-size: 12px; color: #555;"><strong>Last Update:</strong> ${ts}</div>`;
+          timestampHtml = `<div style="margin-top: 5px; padding-top: 5px; font-size: 12px; color: #555;"><normal>Last Update:</normal> ${ts}</div>`;
         }
 
         new mapboxgl.Popup({
@@ -336,7 +285,7 @@ function Map() {
           .setLngLat(coordinates)
           .setHTML(
             `
-            <div style="min-width:180px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; padding: 4px;">
+            <div style="min-width:450px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;">
               <div style="font-weight:600; margin-bottom:8px; font-size:16px; color:#111;">${properties?.city}</div>
               <div style="font-size:13px; color:#374151; line-height:1.4;">
                 <div style="margin-bottom:3px;"><strong>AQI:</strong> <span style="color:${properties?.color}; font-weight:600;">${properties?.aqi ?? '—'}</span></div>
@@ -363,22 +312,14 @@ function Map() {
 
     // Cleanup function
     return () => {
-      if (map && map.loaded()) {
-        try {
-          map.off('mouseenter', 'hotspots-circles', handleMouseEnter);
-          map.off('mouseleave', 'hotspots-circles', handleMouseLeave);
-          if (map.getLayer('hotspots-labels')) {
-            map.removeLayer('hotspots-labels');
-          }
-          if (map.getLayer('hotspots-circles')) {
-            map.removeLayer('hotspots-circles');
-          }
-          if (map.getSource('HOTSPOTS')) {
-            map.removeSource('HOTSPOTS');
-          }
-        } catch (error) {
-          console.log('Cleanup warning:', error);
-        }
+      markersRef.current.forEach((marker) => marker.remove());
+      markersRef.current = [];
+
+      if (map.getSource('HOTSPOTS')) {
+        map.off('mouseenter', 'hotspots-layer', handleMouseEnter);
+        map.off('mouseleave', 'hotspots-layer', handleMouseLeave);
+        map.removeLayer('hotspots-layer');
+        map.removeSource('HOTSPOTS');
       }
     };
   }, [hotspotData, mapLoaded]);
@@ -417,8 +358,7 @@ function Map() {
 
               <p className="text-lg text-gray-600 leading-relaxed">
                 Our network provides a real-time snapshot of the air quality in
-                major urban centers. Explore the map to see the current annual
-                average PM2.5 levels
+                major urban centers. Explore the map to see the latest PM2.5 concentration across Pakistani cities.
               </p>
 
               <div className="pt-4">
