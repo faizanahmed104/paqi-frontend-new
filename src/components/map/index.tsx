@@ -35,11 +35,12 @@ function Map() {
               signal: controller.signal,
               cache: 'no-store',
             });
-            if (!res.ok) return { city: cfg.city, aqi: null, pm25: null };
+            if (!res.ok) return { city: cfg.city, aqi: null, pm25: null, timestamp: null };
             const json = await res.json();
             const aqius = getAqius(json);
             const pm25 = json?.data?.current?.pollution?.p2?.conc ?? null;
-            return { city: cfg.city, aqi: aqius, pm25 };
+            const timestamp = json?.data?.current?.pollution?.ts ?? null;
+            return { city: cfg.city, aqi: aqius, pm25, timestamp };
           })
         );
         setHotspotData(results);
@@ -143,25 +144,15 @@ function Map() {
             data: require('./pakistan.json'),
           });
 
-          // Add the fill layer
-          map.addLayer({
-            id: 'pakistan-fill',
-            type: 'fill',
-            source: 'pakistan-boundary',
-            paint: {
-              'fill-color': '#13A94B',
-              'fill-opacity': 0.1,
-            },
-          });
-
           // Add the outline layer
           map.addLayer({
             id: 'pakistan-outline',
             type: 'line',
             source: 'pakistan-boundary',
             paint: {
-              'line-color': '#13A94B',
+              'line-color': '#022d12',
               'line-width': 2,
+              'line-opacity': 0.8,
             },
           });
         } catch (error) {
@@ -185,9 +176,8 @@ function Map() {
 
   // Add city markers when data is available and map is loaded
   useEffect(() => {
-    if (!mapInstance.current || !mapLoaded || !hotspotData.length) return;
-
     const map = mapInstance.current;
+    if (!map || !mapLoaded || !hotspotData || hotspotData.length === 0) return;
 
     // Clear existing markers and sources
     markersRef.current.forEach((marker) => marker.remove());
@@ -199,6 +189,9 @@ function Map() {
       map.removeSource('HOTSPOTS');
     }
 
+    // Calculate the cutoff time (1 hour ago)
+    const oneHourAgo = new Date(Date.now() - 7200 * 1000);
+
     // Create GeoJSON data for HOTSPOTS
     const hotspotsGeoJSON = {
       type: 'FeatureCollection',
@@ -206,22 +199,48 @@ function Map() {
         const data = hotspotData.find((d) => d.city === hotspot.city) || {};
         const { aqi, pm25 } = data;
         const info = aqiInfo(aqi);
+        const timestamp = data.timestamp ?? null;
 
-        return {
-          type: 'Feature',
-          properties: {
-            city: hotspot.city,
-            aqi: aqi || null,
-            pm25: pm25 || null,
-            status: info.status,
-            color: info.color,
-          },
-          geometry: {
-            type: 'Point',
-            coordinates: hotspot.coordinates,
-          },
-        };
-      }),
+          // Create a formatted label for the map
+          const pm25Label = pm25 ? Number(pm25).toFixed(0) : '—';
+          
+
+          return {
+            type: 'Feature',
+            properties: {
+              city: hotspot.city,
+              aqi: aqi, // Pass raw aqi for filtering
+              pm25: pm25 || null,
+              pm25Label: pm25Label,
+              status: info.status,
+              color: info.color,
+              timestamp: timestamp ?? null,
+            },
+            geometry: {
+              type: 'Point',
+              coordinates: hotspot.coordinates,
+            },
+          };
+        })
+        // This line filters out all features where aqi is not a number
+        .filter((feature) => {
+          const aqi = feature.properties.aqi;
+          const ts = feature.properties.timestamp;
+
+          // 1. Must have a valid AQI
+          const hasValidAqi = typeof aqi === 'number';
+
+          // 2. Must have a timestamp (this filters out fallback data)
+          if (!ts) {
+            return false;
+          }
+
+          // 3. Timestamp must be more recent than 1 hour ago
+          const featureTime = new Date(ts);
+          const isRecent = featureTime > oneHourAgo;
+
+          return hasValidAqi && isRecent;
+        }),
     };
 
     // Add hotspots source
@@ -230,17 +249,52 @@ function Map() {
       data: hotspotsGeoJSON as GeoJSON.FeatureCollection,
     });
 
-    // Add hotspots layer
+    // Add circle layer
     map.addLayer({
-      id: 'hotspots-layer',
+      id: 'hotspots-circles',
       type: 'circle',
       source: 'HOTSPOTS',
       paint: {
-        'circle-radius': 10,
+        // Use a 'step' expression for zoom-based radius
+        'circle-radius': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          5.5, 7,   // At zoom 8 (and below), radius is 5px
+          6, 16  // At zoom 9 (and above), radius is 14px
+        ],
         'circle-color': ['get', 'color'],
-        'circle-stroke-width': 2,
-        'circle-stroke-color': '#ffffff',
-        'circle-opacity': 0.9,
+        'circle-stroke-width': 3,
+        'circle-stroke-color': ['get', 'color'],
+        'circle-stroke-opacity': 0.7,
+        'circle-opacity': 1,
+      },
+    });
+
+    // Add layer for PM2.5 labels
+    map.addLayer({
+      id: 'hotspots-labels',
+      type: 'symbol',
+      source: 'HOTSPOTS',
+      minzoom: 6.5,
+      layout: {
+        'text-field': ['get', 'pm25Label'],
+        'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+        'text-size': 12,
+        // 'text-allow-overlap': true,
+        'text-ignore-placement': true,
+      },
+      paint: {
+        'text-color': [
+          'case',
+          [
+            'any',
+            ['==', ['get', 'status'], 'Moderate'],
+            ['==', ['get', 'status'], 'Good'],
+          ],
+          '#333333', // Dark text for light circles
+          '#FFFFFF', // White text for dark circles
+        ],
       },
     });
 
@@ -254,39 +308,41 @@ function Map() {
         const coordinates = geometry.coordinates.slice() as [number, number];
         const properties = feature.properties;
 
-        // Ensure that if the map is zoomed out such that multiple
-        // copies of the feature are visible, the popup appears
-        // over the copy being pointed to.
         while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
           coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        // Conditionally create the timestamp HTML
+        let timestampHtml = '';
+        
+        // Only if the timestamp exists (i.e., not fallback data), create the HTML line
+        if (properties?.timestamp) {
+          const ts = new Date(properties.timestamp).toLocaleString(undefined, {
+            dateStyle: 'long',
+            timeStyle: 'short',
+          });
+          timestampHtml = `<div style="margin-top: 5px; padding-top: 5px; font-size: 12px; color: #555;"><normal>Last Update:</normal> ${ts}</div>`;
         }
 
         new mapboxgl.Popup({
           closeButton: false,
           closeOnClick: false,
+          className: 'custom-popup',
           offset: 15,
         })
           .setLngLat(coordinates)
           .setHTML(
             `
-            <div style="min-width:180px; padding: 8px;">
-                <div style="font-weight:600; margin-bottom:8px; font-size:16px;">${properties?.city || ''}</div>
-                <div style="font-size:13px; color:#374151;">
-                    <div style="margin-bottom:4px;">
-                        <strong>AQI:</strong> 
-                        <span style="color:${properties?.color || '#9CA3AF'}; font-weight:600;">${properties?.aqi || '—'}</span>
-                    </div>
-                    <div style="margin-bottom:4px;">
-                        <strong>Status:</strong> 
-                        ${properties?.status === 'USG' ? 'Unhealthy for Sensitive Groups' : properties?.status || '—'}
-                    </div>
-                    <div>
-                        <strong>PM2.5:</strong> 
-                        ${properties?.pm25 ? `${Number(properties.pm25).toFixed(1)} μg/m³` : '—'}
-                    </div>
-                </div>
+            <div style="min-width:450px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;">
+              <div style="font-weight:600; margin-bottom:8px; font-size:16px; color:#111;">${properties?.city}</div>
+              <div style="font-size:13px; color:#374151; line-height:1.4;">
+                <div style="margin-bottom:3px;"><strong>AQI:</strong> <span style="color:${properties?.color}; font-weight:600;">${properties?.aqi ?? '—'}</span></div>
+                <div style="margin-bottom:3px;"><strong>Status:</strong> ${properties?.status === 'USG' ? 'Unhealthy for Sensitive Groups' : properties?.status}</div>
+                <div style="margin-bottom:3px;"><strong>PM2.5:</strong> ${properties?.pm25 ? Number(properties.pm25).toFixed(1) : '—'} μg/m³</div>
+                ${timestampHtml}
+              </div>
             </div>
-            `
+          `
           )
           .addTo(map);
       }
@@ -294,15 +350,13 @@ function Map() {
 
     const handleMouseLeave = () => {
       map.getCanvas().style.cursor = '';
-      // Remove all popups
       const popups = document.getElementsByClassName('mapboxgl-popup');
-      Array.from(popups).forEach((popup) => {
-        popup.remove();
-      });
+      Array.from(popups).forEach((popup) => popup.remove());
     };
 
-    map.on('mouseenter', 'hotspots-layer', handleMouseEnter);
-    map.on('mouseleave', 'hotspots-layer', handleMouseLeave);
+    // Listen on the circle layer
+    map.on('mouseenter', 'hotspots-circles', handleMouseEnter);
+    map.on('mouseleave', 'hotspots-circles', handleMouseLeave);
 
     // Cleanup function
     return () => {

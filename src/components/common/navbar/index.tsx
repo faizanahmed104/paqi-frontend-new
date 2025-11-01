@@ -50,8 +50,8 @@ function Navbar({ variant = 'default' }: { variant?: 'default' | 'white' }) {
               <Image
                 src="/assets/images/logo.png"
                 alt="PAQI"
-                width={45}
-                height={45}
+                width={40}
+                height={40}
                 className="w-[40px] h-[40px] sm:w-[45px] sm:h-[45px] lg:w-[60px] lg:h-[60px] transition-all duration-500"
                 style={{
                   filter: useBlackText ? 'invert(100%)' : '',
@@ -59,7 +59,7 @@ function Navbar({ variant = 'default' }: { variant?: 'default' | 'white' }) {
               />
             </div>
             <h2
-              className={`text-[14px] sm:text-sm lg:text-xl font-semibold tracking-wide transition-all duration-500 leading-tight ${
+              className={`text-[14px] sm:text-sm lg:text-l font-semibold tracking-wide transition-all duration-500 leading-tight ${
                 useBlackText ? 'text-black' : 'text-white'
               }`}
             >
