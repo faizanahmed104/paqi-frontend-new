@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import Button from '@/ui-elements/Button';
 import { AirLoader } from '@/ui-elements/Loader';
-import { API_KEY, buildUrl, controller, MAPBOX_ACCESS_TOKEN } from '@/libs/api';
+import {  buildUrl, controller, MAPBOX_ACCESS_TOKEN } from '@/libs/api';
 import { FAKE_HOTSPOTS, HOTSPOTS } from '@/components/common/constant';
 import { aqiInfo, getAqius } from '@/utils/helpers';
 
