@@ -1,8 +1,6 @@
-import React from 'react';
 import Insights from '@/components/insights';
+import React from 'react';
 
-function InsightsPage() {
+export default function InsightsPage() {
   return <Insights />;
 }
-
-export default InsightsPage;
