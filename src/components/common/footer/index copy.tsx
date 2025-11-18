@@ -3,10 +3,9 @@ import Link from 'next/link';
 
 function Footer() {
   return (
-    // Outer wrapper: no horizontal padding on mobile so footer is truly full-width
-    <div className="relative pt-4 sm:p-4">
+    <div className="relative p-4">
       {/* Main Footer Content with Rounded Corners */}
-      <div className="bg-[#123524] text-white rounded-t-3xl sm:rounded-3xl">
+      <div className="bg-[#123524] text-white rounded-3xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Row 1: Main content with two columns */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-12">
@@ -34,7 +33,7 @@ function Footer() {
                   />
                 </div>
                 <h2
-                  className="text-[14px] sm:text-sm lg:text-xl font-semibold tracking-wide transition-all duration-500 leading-tight"
+                  className={`text-[14px] sm:text-sm lg:text-xl font-semibold tracking-wide transition-all duration-500 leading-tight`}
                 >
                   <Link href="/" className="inline-block">
                     <span className="hidden">
@@ -109,72 +108,39 @@ function Footer() {
               </div>
             </div>
 
-            {/* Column 2: Right side - Links Section (Two Columns) */}
+            {/* Column 2: Right side - Contact Section */}
             <div className="lg:pl-12 w-full">
-              <div className="grid grid-cols-2 gap-8 sm:gap-12">
-                {/* Quick Links */}
-                <div>
-                  <h3 className="text-lg sm:text-xl font-semibold text-[#13a94b]">
-                    Quick links
-                  </h3>
-                  <ul className="mt-4 space-y-2 text-sm sm:text-base">
-                    <li>
-                      <Link
-                        href="/map"
-                        className="text-gray-300 hover:text-white transition-colors duration-200"
-                      >
-                        Map
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/insights"
-                        className="text-gray-300 hover:text-white transition-colors duration-200"
-                      >
-                        Insights
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-[#13a94b]">
+                  Subscribe to our newsletter
+                </h3>
 
-                {/* Other Links */}
-                <div>
-                  <h3 className="text-lg sm:text-xl font-semibold text-[#13a94b]">
-                    Other links
-                  </h3>
-                  <ul className="mt-4 space-y-2 text-sm sm:text-base">
-                    <li>
-                      <Link
-                        href="/"
-                        className="text-gray-300 hover:text-white transition-colors duration-200"
-                      >
-                        Home
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/about-us"
-                        className="text-gray-300 hover:text-white transition-colors duration-200"
-                      >
-                        About us
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/contact-us"
-                        className="text-gray-300 hover:text-white transition-colors duration-200"
-                      >
-                        Contact us
-                      </Link>
-                    </li>
-                  </ul>
+                <p className="text-gray-300">
+                  Want to know more about PAQI?
+                  <br /> Let's get in touch.
+                </p>
+
+                {/* Email Input */}
+                <div className="flex w-full">
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    className="flex-1 bg-[#FFFFFF59]  px-3 sm:px-4 py-2 text-white
+               placeholder-gray-400 focus:outline-none focus:border-[#13a94b] text-sm sm:text-base"
+                  />
+                  <button
+                    className="w-32 sm:w-40 bg-[#13a94b] hover:bg-white hover:text-black px-4 sm:px-6 py-2 font-medium
+               transition-colors duration-200 text-sm sm:text-base whitespace-nowrap"
+                  >
+                    Go
+                  </button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Row 2: Navigation Links (optional – still kept for now) */}
-          {/* <div className="pb-2">
+          {/* Row 2: Navigation Links */}
+          <div className="pb-2">
             <div className="flex flex-wrap justify-center sm:justify-end space-x-4 sm:space-x-8 sm:text-sm text-[12px]">
               <a
                 href="/contact-us"
@@ -201,7 +167,7 @@ function Footer() {
                 Map
               </a>
             </div>
-          </div> */}
+          </div>
 
           {/* Row 3: Copyright - Center aligned */}
           <div className="pt-6">

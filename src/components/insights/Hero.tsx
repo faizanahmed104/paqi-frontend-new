@@ -10,11 +10,10 @@ function Hero() {
   return (
     <div className="">
       <Navbar variant="white" />
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto my-16">
         {/* Hero Section */}
         <section>
-          <div className="flex flex-col lg:flex-row mt-28">
-            {/* Left Content */}
+          {/* <div className="flex flex-col lg:flex-row mt-28">
             <div className="lg:w-1/2 flex flex-col justify-center pr-6 md:pr-10 lg:px-6 py-12 lg:py-20">
               <h1 className="text-5xl mt-[1.2rem]">
                 Working with visionaries on the frontlines of social change
@@ -36,23 +35,22 @@ function Hero() {
                 About Us
               </Button>
 
-              {/* Full-width horizontal divider */}
               <div className="w-full border-b-2 border-gray-900 mt-8" />
             </div>
 
-            {/* Right Media */}
             <div className="lg:w-1/2 min-h-[260px] md:min-h-[340px] lg:min-h-[420px]">
               <img
                 src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1600&q=80"
                 alt="Performance on stage"
               />
             </div>
-          </div>
+          </div> */}
         </section>
 
-        {/* Three Column Cards Section - no top spacing */}
         {/* Dynamic Insight Highlight Blocks */}
-        <section className="">
+        <h2 className='mb-32 flex justify-center text-2xl font-semibold text-black'>Featured</h2>
+
+        <section>
           <div className="max-w-7xl mx-auto px-6 md:px-8 space-y-32">
             {insightsData.map((card, index) => {
               const isEven = index % 2 === 0;
@@ -135,8 +133,10 @@ function Hero() {
             })}
           </div>
         </section>
-        {/* <section>
-          <div className="max-w-7xl mx-auto pl-4">
+
+        <h2 className='mt-10 my-5 flex justify-center text-2xl font-semibold text-black'>Explore All</h2>
+        <section>
+          <div className="max-w-7xl mx-auto pl-4 py-10">
             <div className="flex flex-col gap-5 md:flex-row md:divide-x md:divide-gray-200">
               {insightsData.map((card) => (
                 <Link
@@ -165,7 +165,7 @@ function Hero() {
               ))}
             </div>
           </div>
-        </section> */}
+        </section>
       </div>
       <Footer />
     </div>

@@ -2,12 +2,7 @@ import { useState, ChangeEvent } from 'react';
 
 type FormData = {
   fullName: string;
-  phoneNumber: string;
   email: string;
-  products: string[];
-  data: string[];
-  business: string[];
-  others: string[];
   affiliation: string;
   message: string;
 };
@@ -15,12 +10,7 @@ type FormData = {
 function Form() {
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
-    phoneNumber: '',
     email: '',
-    products: [],
-    data: [],
-    business: [],
-    others: [],
     affiliation: '',
     message: '',
   });
@@ -32,16 +22,6 @@ function Form() {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }));
-  };
-
-  const handleCheckboxChange = (category: keyof FormData, value: string) => {
-    if (!Array.isArray(formData[category])) return;
-    setFormData((prev) => ({
-      ...prev,
-      [category]: (prev[category] as string[]).includes(value)
-        ? (prev[category] as string[]).filter((item) => item !== value)
-        : [...(prev[category] as string[]), value],
     }));
   };
 
@@ -65,7 +45,7 @@ function Form() {
                 <p className="text-black leading-relaxed">
                   Looking for any air quality monitoring data or solutions?
                 </p>
-                
+
               </div>
             </div>
 
@@ -88,165 +68,18 @@ function Form() {
                 </div>
 
                 {/* Phone & Email */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone Number:
-                    </label>
-                    <input
-                      type="tel"
-                      name="phoneNumber"
-                      placeholder="Phone Number"
-                      value={formData.phoneNumber}
-                      onChange={handleInputChange}
-                      className="w-full px-2 py-3 border-0 border-b border-gray-300 bg-transparent focus:outline-none focus:border-green-500 focus:border-b-2"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email:
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      placeholder="Email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className="w-full px-2 py-3 border-0 border-b border-gray-300 bg-transparent focus:outline-none focus:border-green-500 focus:border-b-2"
-                    />
-                  </div>
-                </div>
-
-                {/* Purpose of Contact */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-4">
-                    Purpose of Contact:
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email:
                   </label>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    {/* Products */}
-                    <div>
-                      <h4 className="font-medium text-gray-700 mb-2">
-                        Products:
-                      </h4>
-                      <div className="space-y-2">
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={formData.products.includes(
-                              'Air Quality Monitor'
-                            )}
-                            onChange={() =>
-                              handleCheckboxChange(
-                              'products',
-                              'Air Quality Monitor'
-                            )
-                            }
-                            className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-                          />
-                          <span className="ml-2 text-sm text-gray-600">
-                            Air Quality Monitor
-                          </span>
-                        </label>
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={formData.products.includes(
-                              'Air Quality Sensor'
-                            )}
-                            onChange={() =>
-                              handleCheckboxChange(
-                              'products',
-                              'Air Quality Sensor'
-                            )
-                            }
-                            className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-                          />
-                          <span className="ml-2 text-sm text-gray-600">
-                            Air Quality Sensor
-                          </span>
-                        </label>
-                      </div>
-                    </div>
-
-                    {/* Data */}
-                    <div>
-                      <h4 className="font-medium text-gray-700 mb-2">Data:</h4>
-                      <div className="space-y-2">
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={formData.data.includes('Air Quality API')}
-                            onChange={() =>
-                              handleCheckboxChange('data', 'Air Quality API')
-                            }
-                            className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-                          />
-                          <span className="ml-2 text-sm text-gray-600">
-                            Air Quality API
-                          </span>
-                        </label>
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={formData.data.includes('Weather API')}
-                            onChange={() =>
-                              handleCheckboxChange('data', 'Weather API')
-                            }
-                            className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-                          />
-                          <span className="ml-2 text-sm text-gray-600">
-                            Weather API
-                          </span>
-                        </label>
-                      </div>
-                    </div>
-
-                    {/* Business */}
-                    <div>
-                      <h4 className="font-medium text-gray-700 mb-2">
-                        Business:
-                      </h4>
-                      <div className="space-y-2">
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={formData.business.includes(
-                              'Business Deal'
-                            )}
-                            onChange={() =>
-                              handleCheckboxChange('business', 'Business Deal')
-                            }
-                            className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-                          />
-                          <span className="ml-2 text-sm text-gray-600">
-                            Business Deal
-                          </span>
-                        </label>
-                      </div>
-                    </div>
-
-                    {/* Others */}
-                    <div>
-                      <h4 className="font-medium text-gray-700 mb-2">
-                        Others:
-                      </h4>
-                      <div className="space-y-2">
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={formData.others.includes('Others')}
-                            onChange={() =>
-                              handleCheckboxChange('others', 'Others')
-                            }
-                            className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-                          />
-                          <span className="ml-2 text-sm text-gray-600">
-                            Others
-                          </span>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full px-2 py-3 border-0 border-b border-gray-300 bg-transparent focus:outline-none focus:border-green-500 focus:border-b-2"
+                  />
                 </div>
 
                 {/* Affiliation */}
