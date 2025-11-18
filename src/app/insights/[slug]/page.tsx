@@ -87,66 +87,6 @@ export default function InsightDetails({ params }: any) {
         <div className='my-5 flex justify-center'>
           <Button shape='square' size='lg'>Access Request this document</Button>
         </div>
-
-        {/* Stay Connected / Subscribe block */}
-        <section className="mt-16 pt-8 border-t border-gray-200">
-          <h2 className="text-sm font-semibold tracking-[0.16em] uppercase text-gray-600 mb-3">
-            Stay Connected
-          </h2>
-          <p className="text-xs sm:text-sm text-gray-600 mb-4">
-            Get the latest news, stories, and insights from our work in your inbox.
-          </p>
-
-          <form className="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
-            <div className="md:col-span-2">
-              <label className="block mb-1 text-gray-600">Email Address *</label>
-              <input
-                type="email"
-                required
-                className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-black text-xs"
-              />
-            </div>
-            <div>
-              <label className="block mb-1 text-gray-600">First Name *</label>
-              <input
-                type="text"
-                required
-                className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-black text-xs"
-              />
-            </div>
-            <div>
-              <label className="block mb-1 text-gray-600">Last Name *</label>
-              <input
-                type="text"
-                required
-                className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-black text-xs"
-              />
-            </div>
-            <div>
-              <label className="block mb-1 text-gray-600">Country *</label>
-              <select
-                required
-                className="w-full border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-1 focus:ring-black text-xs"
-              >
-                <option value="">Select a country</option>
-                <option>United States</option>
-                <option>United Kingdom</option>
-                <option>Canada</option>
-                <option>India</option>
-                {/* add as needed */}
-              </select>
-            </div>
-
-            <div className="md:col-span-5 mt-2">
-              <button
-                type="submit"
-                className="px-6 py-2 border border-gray-900 text-gray-900 text-xs font-semibold hover:bg-gray-900 hover:text-white transition"
-              >
-                Subscribe
-              </button>
-            </div>
-          </form>
-        </section>
       </main>
 
       <Footer />

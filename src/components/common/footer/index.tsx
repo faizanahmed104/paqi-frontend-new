@@ -1,10 +1,87 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 function Footer() {
+  const pathname = usePathname();
+  const isContactPage = pathname === '/contact-us';
+
   return (
-    // Outer wrapper: no horizontal padding on mobile so footer is truly full-width
     <div className="relative pt-4 sm:p-4">
+      <section
+        className={`mt-16 pt-8 border-t border-gray-200 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 ${isContactPage ? 'hidden' : ''}`}
+      >
+        <h2 className="text-sm font-semibold tracking-[0.16em] uppercase text-gray-600 mb-3">
+          Stay Connected
+        </h2>
+
+        <p className="text-xs sm:text-sm text-gray-600 mb-4">
+          Get the latest news, stories, and insights from our work in your
+          inbox.
+        </p>
+
+        <form className="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
+          <div className="md:col-span-2">
+            <label className="block mb-1 text-gray-600">Email Address *</label>
+            <input
+              type="email"
+              required
+              className="w-full border border-gray-300 px-3 py-2 
+        focus:outline-none focus:ring-1 focus:ring-black text-xs"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 text-gray-600">First Name *</label>
+            <input
+              type="text"
+              required
+              className="w-full border border-gray-300 px-3 py-2 
+        focus:outline-none focus:ring-1 focus:ring-black text-xs"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 text-gray-600">Last Name *</label>
+            <input
+              type="text"
+              required
+              className="w-full border border-gray-300 px-3 py-2 
+        focus:outline-none focus:ring-1 focus:ring-black text-xs"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 text-gray-600">Country *</label>
+            <select
+              required
+              className="w-full border border-gray-300 px-3 py-2 
+        bg-white focus:outline-none focus:ring-1 focus:ring-black text-xs"
+            >
+              <option value="">Select a country</option>
+              <option>United States</option>
+              <option>United Kingdom</option>
+              <option>Canada</option>
+              <option>India</option>
+              {/* add as needed */}
+            </select>
+          </div>
+
+          <div className="md:col-span-5 mt-2">
+            <button
+              type="submit"
+              className="px-6 py-2 border border-gray-900 
+        text-gray-900 text-xs font-semibold 
+        hover:bg-gray-900 hover:text-white transition"
+            >
+              Subscribe
+            </button>
+          </div>
+        </form>
+      </section>
+
       {/* Main Footer Content with Rounded Corners */}
       <div className="bg-[#123524] text-white rounded-t-3xl sm:rounded-3xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -33,9 +110,7 @@ function Footer() {
                     className="w-[40px] h-[40px] sm:w-[45px] sm:h-[45px] lg:w-[60px] lg:h-[60px] transition-all duration-500"
                   />
                 </div>
-                <h2
-                  className="text-[14px] sm:text-sm lg:text-xl font-semibold tracking-wide transition-all duration-500 leading-tight"
-                >
+                <h2 className="text-[14px] sm:text-sm lg:text-xl font-semibold tracking-wide transition-all duration-500 leading-tight">
                   <Link href="/" className="inline-block">
                     <span className="hidden">
                       Pakistan Air Quality Initiative
