@@ -1,8 +1,8 @@
 'use client';
 
-import Button from '@/ui-elements/Button';
-import { CARDS } from './constant';
 import Image from 'next/image';
+import Button from '@/ui-elements/Button';
+import { insightsData } from '@/app/insights/data/InsightsData';
 
 function Blog() {
   return (
@@ -23,7 +23,7 @@ function Blog() {
         <div>
           {/* Mobile & Tablet Slider - up to desktop */}
           <div className="flex lg:hidden space-x-4 md:space-x-6 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide px-4 md:px-6">
-            {CARDS.map((card, index) => (
+            {insightsData.map((card, index) => (
               <article
                 key={index}
                 className="flex-shrink-0 snap-center w-80 md:w-96 bg-white shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 group cursor-pointer"
@@ -58,7 +58,7 @@ function Blog() {
           {/* Desktop Layout - 3 columns with dividers */}
           <div className="hidden lg:block">
             <div className="flex justify-center items-stretch">
-              {CARDS.map((card, index) => (
+              {insightsData.map((card, index) => (
                 <div key={index} className="flex">
                   <article className="group bg-white transition-all duration-300 overflow-hidden cursor-pointer w-[350px] flex flex-col mx-4">
                     <div className="relative h-48 overflow-hidden">
@@ -84,7 +84,7 @@ function Blog() {
                   </article>
 
                   {/* Vertical Divider - Show between all cards except the last one */}
-                  {index < CARDS.length - 1 && (
+                  {index < insightsData.length - 1 && (
                     <div className="w-px bg-gray-300 self-stretch" />
                   )}
                 </div>

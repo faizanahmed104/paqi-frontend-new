@@ -1,19 +1,27 @@
 import { useState, ChangeEvent } from 'react';
 
-type FormData = {
+/**
+ * Form component with spam protection.  This version integrates Web3Forms
+ * and includes a hidden honeypot field (`botcheck`) to help prevent
+ * submissions from bots. Replace `YOUR_ACCESS_KEY_HERE` with your
+ * Web3Forms access key.
+ */
+export type FormData = {
   fullName: string;
   email: string;
   affiliation: string;
   message: string;
 };
 
-function Form() {
+function FormWithSpamProtection() {
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
     email: '',
     affiliation: '',
     message: '',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [resultMessage, setResultMessage] = useState<string | null>(null);
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -25,15 +33,51 @@ function Form() {
     }));
   };
 
-  const handleSubmit = () => {
-    console.log('Form submitted:', formData);
-    alert('Form submitted successfully!');
+  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      const payload = {
+        access_key: process.env.NEXT_PUBLIC_FORM_API_KEY,
+        fullName: formData.fullName,
+        email: formData.email,
+        affiliation: formData.affiliation,
+        message: formData.message,
+        subject: `New message from ${formData.fullName || 'Website Visitor'}`,
+        from_name: formData.fullName || 'Website Contact',
+        // Honeypot field. Keep empty to indicate this is not a bot submission.
+        botcheck: '',
+      };
+
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setResultMessage('Form submitted successfully!');
+        setFormData({ fullName: '', email: '', affiliation: '', message: '' });
+      } else {
+        setResultMessage(data.message || 'Something went wrong.');
+      }
+    } catch (error) {
+      console.error(error);
+      setResultMessage('Something went wrong.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="p-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Main Content */}
+      <div className="max-w-[77rem] mx-auto">
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-3 min-h-[600px]">
             {/* Left Sidebar - Contact Info */}
@@ -45,7 +89,6 @@ function Form() {
                 <p className="text-black leading-relaxed">
                   Looking for any air quality monitoring data or solutions?
                 </p>
-
               </div>
             </div>
 
@@ -67,7 +110,7 @@ function Form() {
                   />
                 </div>
 
-                {/* Phone & Email */}
+                {/* Email */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Email:
@@ -112,13 +155,28 @@ function Form() {
                   />
                 </div>
 
+                {/* Hidden botcheck input for honeypot (spam protection) */}
+                <div style={{ display: 'none' }}>
+                  <input type="checkbox" name="botcheck" tabIndex={-1} readOnly />
+                </div>
+
+                {/* Submission result */}
+                {resultMessage && (
+                  <p
+                    className={`$${resultMessage.includes('successfully') ? 'text-green-600' : 'text-red-600'} text-sm`}
+                  >
+                    {resultMessage}
+                  </p>
+                )}
+
                 {/* Submit Button */}
                 <div>
                   <button
                     onClick={handleSubmit}
                     className="bg-[#123524] text-white px-8 py-3 rounded-lg hover:bg-[#1a4a32] transition-colors duration-200 font-medium"
+                    disabled={isSubmitting}
                   >
-                    Submit
+                    {isSubmitting ? 'Submitting...' : 'Submit'}
                   </button>
                 </div>
               </div>
@@ -130,4 +188,4 @@ function Form() {
   );
 }
 
-export default Form;
+export default FormWithSpamProtection;

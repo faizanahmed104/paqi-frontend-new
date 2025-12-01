@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect, ChangeEvent, MouseEvent } from 'react';
+import Button from '@/ui-elements/Button';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -8,18 +10,114 @@ function Footer() {
   const pathname = usePathname();
   const isContactPage = pathname === '/contact-us';
 
+  // State for the subscription form
+  const [subscriptionData, setSubscriptionData] = useState({
+    email: '',
+    firstName: '',
+    lastName: '',
+    country: '',
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [subscribeMessage, setSubscribeMessage] = useState<string | null>(null);
+
+  // Dynamic list of countries (fetched at runtime)
+  const [countriesList, setCountriesList] = useState<string[]>([]);
+
+  useEffect(() => {
+    let mounted = true;
+    // Fetch country names from restcountries API
+    fetch('https://restcountries.com/v3.1/all?fields=name')
+      .then((res) => res.json())
+      .then((data) => {
+        if (!mounted) return;
+        try {
+          const names = data
+            .map((d: any) => d?.name?.common)
+            .filter(Boolean)
+            .sort((a: string, b: string) => a.localeCompare(b));
+          setCountriesList(names);
+        } catch (e) {
+          // fallback to a small static list in case of unexpected response
+          setCountriesList(['United States', 'United Kingdom', 'Canada', 'Pakistan']);
+        }
+      })
+      .catch(() => {
+        setCountriesList(['United States', 'United Kingdom', 'Canada', 'Pakistan']);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const handleSubscriptionChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setSubscriptionData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubscribe = async (e?: MouseEvent<HTMLButtonElement>) => {
+    e?.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      const payload = {
+        access_key: process.env.NEXT_PUBLIC_FORM_API_KEY,
+        email: subscriptionData.email,
+        firstName: subscriptionData.firstName,
+        lastName: subscriptionData.lastName,
+        country: subscriptionData.country,
+        subject: `New newsletter sign-up from ${subscriptionData.firstName} ${subscriptionData.lastName}`,
+        from_name: `${subscriptionData.firstName} ${subscriptionData.lastName}`,
+        botcheck: '', // honeypot field to prevent spam
+      };
+
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setSubscribeMessage('Thanks for subscribing!');
+        setSubscriptionData({
+          email: '',
+          firstName: '',
+          lastName: '',
+          country: '',
+        });
+      } else {
+        setSubscribeMessage(data.message || 'Something went wrong.');
+      }
+    } catch (error) {
+      console.error(error);
+      setSubscribeMessage('Something went wrong.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="relative pt-4 sm:p-4">
       <section
-        className={`mt-16 pt-8 border-t border-gray-200 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 ${isContactPage ? 'hidden' : ''}`}
+        className={`mt-16 pt-8 border-t border-gray-200 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 ${isContactPage ? 'hidden' : ''
+          }`}
       >
         <h2 className="text-sm font-semibold tracking-[0.16em] uppercase text-gray-600 mb-3">
           Stay Connected
         </h2>
 
         <p className="text-xs sm:text-sm text-gray-600 mb-4">
-          Get the latest news, stories, and insights from our work in your
-          inbox.
+          Get the latest news, stories, and insights from our work in your inbox.
         </p>
 
         <form className="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
@@ -27,9 +125,12 @@ function Footer() {
             <label className="block mb-1 text-gray-600">Email Address *</label>
             <input
               type="email"
+              name="email"
               required
-              className="w-full border border-gray-300 px-3 py-2 
-        focus:outline-none focus:ring-1 focus:ring-black text-xs"
+              placeholder='Enter email'
+              value={subscriptionData.email}
+              onChange={handleSubscriptionChange}
+              className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-black text-xs"
             />
           </div>
 
@@ -37,9 +138,12 @@ function Footer() {
             <label className="block mb-1 text-gray-600">First Name *</label>
             <input
               type="text"
+              name="firstName"
               required
-              className="w-full border border-gray-300 px-3 py-2 
-        focus:outline-none focus:ring-1 focus:ring-black text-xs"
+              placeholder='Enter first name'
+              value={subscriptionData.firstName}
+              onChange={handleSubscriptionChange}
+              className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-black text-xs"
             />
           </div>
 
@@ -47,39 +151,64 @@ function Footer() {
             <label className="block mb-1 text-gray-600">Last Name *</label>
             <input
               type="text"
+              name="lastName"
               required
-              className="w-full border border-gray-300 px-3 py-2 
-        focus:outline-none focus:ring-1 focus:ring-black text-xs"
+              placeholder='Enter last name'
+              value={subscriptionData.lastName}
+              onChange={handleSubscriptionChange}
+              className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-black text-xs"
             />
           </div>
 
           <div>
             <label className="block mb-1 text-gray-600">Country *</label>
             <select
+              name="country"
               required
-              className="w-full border border-gray-300 px-3 py-2 
-        bg-white focus:outline-none focus:ring-1 focus:ring-black text-xs"
+              value={subscriptionData.country}
+              onChange={handleSubscriptionChange}
+              className="w-full border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-1 focus:ring-black text-xs"
             >
               <option value="">Select a country</option>
-              <option>United States</option>
-              <option>United Kingdom</option>
-              <option>Canada</option>
-              <option>India</option>
-              {/* add as needed */}
+              {countriesList.length > 0 ? (
+                countriesList.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))
+              ) : (
+                <>
+                  <option>United States</option>
+                  <option>United Kingdom</option>
+                  <option>Canada</option>
+                  <option>India</option>
+                </>
+              )}
             </select>
           </div>
 
+          {/* Hidden honeypot field for spam protection */}
+          <div style={{ display: 'none' }}>
+            <input type="checkbox" name="botcheck" tabIndex={-1} readOnly />
+          </div>
+
           <div className="md:col-span-5 mt-2">
-            <button
-              type="submit"
-              className="px-6 py-2 border border-gray-900 
-        text-gray-900 text-xs font-semibold 
-        hover:bg-gray-900 hover:text-white transition"
+            <Button
+              variant="outlined"
+              size="sm"
+              shape="square"
+              iconRight="→"
+              className={`text-black border-black hover:bg-[#123524] hover:text-white ${isSubmitting ? 'opacity-50 pointer-events-none' : ''}`}
+              onClick={handleSubscribe}
             >
-              Subscribe
-            </button>
+              {isSubmitting ? 'Submitting...' : 'Subscribe'}
+            </Button>
           </div>
         </form>
+
+        {subscribeMessage && (
+          <p className="mt-2 text-xs text-gray-600">{subscribeMessage}</p>
+        )}
       </section>
 
       {/* Main Footer Content with Rounded Corners */}
@@ -112,9 +241,7 @@ function Footer() {
                 </div>
                 <h2 className="text-[14px] sm:text-sm lg:text-xl font-semibold tracking-wide transition-all duration-500 leading-tight">
                   <Link href="/" className="inline-block">
-                    <span className="hidden">
-                      Pakistan Air Quality Initiative
-                    </span>
+                    <span className="hidden">Pakistan Air Quality Initiative</span>
                     <span>
                       <span className="block">Pakistan</span>
                       <span className="block">Air Quality</span>
@@ -248,37 +375,7 @@ function Footer() {
             </div>
           </div>
 
-          {/* Row 2: Navigation Links (optional – still kept for now) */}
-          {/* <div className="pb-2">
-            <div className="flex flex-wrap justify-center sm:justify-end space-x-4 sm:space-x-8 sm:text-sm text-[12px]">
-              <a
-                href="/contact-us"
-                className="text-gray-300 hover:text-white transition-colors duration-200"
-              >
-                Contact us
-              </a>
-              <a
-                href="/about-us"
-                className="text-gray-300 hover:text-white transition-colors duration-200"
-              >
-                About us
-              </a>
-              <a
-                href="/insights"
-                className="text-gray-300 hover:text-white transition-colors duration-200"
-              >
-                Insights
-              </a>
-              <a
-                href="/map"
-                className="text-gray-300 hover:text-white transition-colors duration-200"
-              >
-                Map
-              </a>
-            </div>
-          </div> */}
-
-          {/* Row 3: Copyright - Center aligned */}
+          {/* Row 3: Copyright */}
           <div className="pt-6">
             <div className="text-center">
               <div className="text-sm text-gray-400">

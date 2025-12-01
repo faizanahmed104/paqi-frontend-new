@@ -1,14 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import {
-  Smile,
-  Meh,
-  Frown,
-  AlertTriangle,
-  OctagonAlert,
-  Skull,
-} from 'lucide-react';
 import gsap from 'gsap';
 
 type CityConfig = { city: string; state: string; country: string };
@@ -17,28 +9,28 @@ type CityCard = {
   aqi: string;
   status: string;
   color: string;
-  icon: JSX.Element;
+  icon?: JSX.Element;
 };
 
 // ---- AQI helpers ----
 function aqiInfo(aqiNum?: number | null): {
   status: CityCard['status'];
-  Icon: any;
+  Icon?: any;
   color: string;
 } {
   const aqi = typeof aqiNum === 'number' ? aqiNum : -1;
 
   if (aqi >= 0 && aqi <= 50)
-    return { status: 'Good', Icon: Smile, color: '#56AF7E' };
-  if (aqi <= 100) return { status: 'Moderate', Icon: Meh, color: '#DDAE5B' };
-  if (aqi <= 150) return { status: 'USG', Icon: Frown, color: '#E97E3C' }; // Unhealthy for Sensitive Groups
+    return { status: 'Good', color: '#56AF7E' };
+  if (aqi <= 100) return { status: 'Moderate', color: '#DDAE5B' };
+  if (aqi <= 150) return { status: 'USG', color: '#E97E3C' }; // Unhealthy for Sensitive Groups
   if (aqi <= 200)
-    return { status: 'Unhealthy', Icon: AlertTriangle, color: '#CA5C58' };
+    return { status: 'Unhealthy', color: '#CA5C58' };
   if (aqi <= 300)
-    return { status: 'Very Unhealthy', Icon: OctagonAlert, color: '#A070B6' };
-  if (aqi > 300) return { status: 'Hazardous', Icon: Skull, color: '#A52A2A' };
+    return { status: 'Very Unhealthy', color: '#A070B6' };
+  if (aqi > 300) return { status: 'Hazardous', color: '#A52A2A' };
 
-  return { status: '—', Icon: Meh, color: '#9CA3AF' }; // default gray
+  return { status: '—', color: '#9CA3AF' }; // default gray
 }
 
 function getAqius(resp: any): number | null {
@@ -106,28 +98,28 @@ function AirQualityInsights() {
           aqi: '150',
           status: 'USG',
           color: '#E97E3C',
-          icon: <Frown size={35} />,
+          // icon: <Frown size={35} />,
         },
         {
           city: 'Karachi',
           aqi: '80',
           status: 'Moderate',
           color: '#DDAE5B',
-          icon: <Meh size={35} />,
+          // icon: <Meh size={35} />,
         },
         {
           city: 'Islamabad',
           aqi: '30',
           status: 'Good',
           color: '#56AF7E',
-          icon: <Smile size={35} />,
+          // icon: <Smile size={35} />,
         },
         {
           city: 'Peshawar',
           aqi: '180',
           status: 'Unhealthy',
           color: '#CA5C58',
-          icon: <AlertTriangle size={35} />,
+          // icon: <AlertTriangle size={35} />,
         },
       ]);
       return;
@@ -224,9 +216,9 @@ function AirQualityInsights() {
                       <div className="text-3xl sm:text-4xl lg:text-[48px] font-bold">
                         {city.aqi}
                       </div>
-                      <div className="air-icon absolute -right-2 sm:right-0 bottom-[5px]">
+                      {/* <div className="air-icon absolute -right-2 sm:right-0 bottom-[5px]">
                         {city.icon}
-                      </div>
+                      </div> */}
                     </>
                   )}
                 </div>

@@ -2,8 +2,7 @@ import { notFound } from 'next/navigation';
 import Navbar from '@/components/common/navbar';
 import Footer from '@/components/common/footer';
 import { insightsData } from '../data/InsightsData';
-import Button from '@/ui-elements/Button';
-
+import AccessRequest from '@/components/AccessRequest';
 
 export default function InsightDetails({ params }: any) {
   const post = insightsData.find((p) => p?.slug === params?.slug);
@@ -18,7 +17,7 @@ export default function InsightDetails({ params }: any) {
       </div>
 
       {/* Article wrapper */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-36 ">
         {/* Kicker / Category */}
         <div className="text-xs font-semibold tracking-[0.16em] uppercase text-gray-500 mb-2">
           Stories
@@ -46,12 +45,12 @@ export default function InsightDetails({ params }: any) {
             <img
               src={post.img}
               alt={post.title}
-              className="w-full h-auto object-cover"
+              className="w-full h-[500px] object-cover"
             />
           </div>
 
           {/* Simple share icons on right (decorative, non-functional) */}
-          <div className="hidden lg:flex flex-col gap-3 items-center absolute top-4 -right-16">
+          {/* <div className="hidden lg:flex flex-col gap-3 items-center absolute top-4 -right-16">
             <span className="text-[10px] tracking-wide uppercase text-gray-500">
               Share
             </span>
@@ -64,28 +63,28 @@ export default function InsightDetails({ params }: any) {
             <button className="w-8 h-8 border border-gray-300 rounded-full flex items-center justify-center text-xs hover:bg-gray-100">
               ↗
             </button>
-          </div>
+          </div> */}
         </section>
 
-        <h2 className='my-5 text-2xl sm:text-3xl font-serif font-semibold leading-tight'>
+        <h2 className="my-5 text-2xl sm:text-3xl font-serif font-semibold leading-tight">
           About this report
         </h2>
 
         {/* Content */}
         <section
-          className="prose prose-lg max-w-none text-gray-800 leading-relaxed"
+          className="prose prose-lg max-w-none text-gray-800 leading-relaxed mb-20"
           // content is trusted HTML from InsightsData
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
-        <h2 className='my-5 text-2xl sm:text-3xl font-serif font-semibold leading-tight'>
+        <h2 className="my-5 text-2xl sm:text-3xl font-serif font-semibold leading-tight">
           Executive Summary
         </h2>
-        <h2 className='my-5 text-2xl sm:text-3xl font-serif font-semibold leading-tight'>
+        <h2 className="my-5 text-2xl sm:text-3xl font-serif font-semibold leading-tight">
           References
         </h2>
 
-        <div className='my-5 flex justify-center'>
-          <Button shape='square' size='lg'>Access Request this document</Button>
+        <div className="mt-5 flex justify-center">
+          <AccessRequest slug={post.slug} title={post.title} />
         </div>
       </main>
 

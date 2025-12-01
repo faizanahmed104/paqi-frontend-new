@@ -36,3 +36,65 @@
     /* Firefox */
   }
 }
+
+.roller {
+  height: 1.5rem;
+  line-height: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.roller #rolltext {
+  position: absolute;
+  top: 0;
+  animation: slide 3s infinite;
+}
+
+@keyframes slide {
+  0% {
+    top: 0;
+  }
+
+  33.33% {
+    top: -1.5rem;
+  }
+
+  66.66% {
+    top: -3rem;
+  }
+
+  100% {
+    top: 0;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .roller {
+    height: 1.125rem;
+    line-height: 1.125rem;
+    overflow-x: auto;
+  }
+
+  .roller #rolltext {
+    animation: slide-mob 3s infinite;
+  }
+
+  @keyframes slide-mob {
+    0% {
+      top: 0;
+    }
+
+    33.33% {
+      top: -1.125rem;
+    }
+
+    66.66% {
+      top: -2.25rem;
+    }
+
+    100% {
+      top: 0;
+    }
+  }
+}

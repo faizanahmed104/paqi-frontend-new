@@ -12,7 +12,7 @@ function ContactUs() {
         title={"Let's Talk"}
         subTitle="Please help us know what requirements you have. Our team will contact you very soon."
       />
-      <div className="relative z-30 -mt-32">
+      <div className="relative z-30 -mt-16">
         <Form />
       </div>
       <Footer />
