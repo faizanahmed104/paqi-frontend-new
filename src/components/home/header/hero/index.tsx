@@ -43,7 +43,7 @@ function Hero() {
   return (
     <div
       ref={heroRef}
-      className="relative h-[80vh] sm:h-[90vh] lg:h-screen overflow-hidden"
+      className="relative h-screen sm:h-[90vh] lg:h-screen overflow-hidden"
     >
       {SLIDES.map((slide, index) => (
         <div

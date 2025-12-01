@@ -15,7 +15,7 @@ function Insights() {
       <Hero title={'Insights'} subTitle={'This is insights subtitle'} />
       <div className="max-w-7xl mx-auto my-16">
         {/* Dynamic Insight Highlight Blocks */}
-        <div className="mb-32 flex items-center gap-6 -mt-10">
+        <div className="mb-32 ml-7 flex items-center gap-6 -mt-10">
           <h2 className="text-4xl font-semibold text-black">
             Featured
           </h2>
