@@ -3,8 +3,11 @@
 import Image from 'next/image';
 import Button from '@/ui-elements/Button';
 import { insightsData } from '@/app/insights/data/InsightsData';
+import { useRouter } from 'next/navigation';
 
 function Blog() {
+  const router = useRouter();
+
   return (
     <section id="blog" className="py-24 bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -96,6 +99,7 @@ function Blog() {
         {/* View All Button */}
         <div className="text-center mt-12">
           <Button
+          onClick={() => router.push('/insights')}
             variant="outlined"
             size="lg"
             shape="square"

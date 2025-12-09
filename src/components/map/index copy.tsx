@@ -35,8 +35,7 @@ function Map() {
               signal: controller.signal,
               cache: 'no-store',
             });
-            if (!res.ok)
-              return { city: cfg.city, aqi: null, pm25: null, timestamp: null };
+            if (!res.ok) return { city: cfg.city, aqi: null, pm25: null, timestamp: null };
             const json = await res.json();
             const aqius = getAqius(json);
             const pm25 = json?.data?.current?.pollution?.p2?.conc ?? null;
@@ -202,26 +201,27 @@ function Map() {
         const info = aqiInfo(aqi);
         const timestamp = data.timestamp ?? null;
 
-        // Create a formatted label for the map
-        const pm25Label = pm25 ? Number(pm25).toFixed(0) : '—';
+          // Create a formatted label for the map
+          const pm25Label = pm25 ? Number(pm25).toFixed(0) : '—';
+          
 
-        return {
-          type: 'Feature',
-          properties: {
-            city: hotspot.city,
-            aqi: aqi, // Pass raw aqi for filtering
-            pm25: pm25 || null,
-            pm25Label: pm25Label,
-            status: info.status,
-            color: info.color,
-            timestamp: timestamp ?? null,
-          },
-          geometry: {
-            type: 'Point',
-            coordinates: hotspot.coordinates,
-          },
-        };
-      })
+          return {
+            type: 'Feature',
+            properties: {
+              city: hotspot.city,
+              aqi: aqi, // Pass raw aqi for filtering
+              pm25: pm25 || null,
+              pm25Label: pm25Label,
+              status: info.status,
+              color: info.color,
+              timestamp: timestamp ?? null,
+            },
+            geometry: {
+              type: 'Point',
+              coordinates: hotspot.coordinates,
+            },
+          };
+        })
         // This line filters out all features where aqi is not a number
         .filter((feature) => {
           const aqi = feature.properties.aqi;
@@ -260,10 +260,8 @@ function Map() {
           'interpolate',
           ['linear'],
           ['zoom'],
-          5.5,
-          7, // At zoom 8 (and below), radius is 5px
-          6,
-          16, // At zoom 9 (and above), radius is 14px
+          5.5, 7,   // At zoom 8 (and below), radius is 5px
+          6, 16  // At zoom 9 (and above), radius is 14px
         ],
         'circle-color': ['get', 'color'],
         'circle-stroke-width': 3,
@@ -316,7 +314,7 @@ function Map() {
 
         // Conditionally create the timestamp HTML
         let timestampHtml = '';
-
+        
         // Only if the timestamp exists (i.e., not fallback data), create the HTML line
         if (properties?.timestamp) {
           const ts = new Date(properties.timestamp).toLocaleString(undefined, {
@@ -335,12 +333,12 @@ function Map() {
           .setLngLat(coordinates)
           .setHTML(
             `
-            <div style="min-width:180px; max-width:90vw; padding:8px; box-sizing:border-box; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;">
-              <div style="font-weight:600; margin-bottom:6px; font-size:16px; color:#111;">${properties?.city}</div>
+            <div style="min-width:450px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;">
+              <div style="font-weight:600; margin-bottom:8px; font-size:16px; color:#111;">${properties?.city}</div>
               <div style="font-size:13px; color:#374151; line-height:1.4;">
-                <div style="margin-bottom:6px;"><strong>AQI:</strong> <span style="color:${properties?.color}; font-weight:600;">${properties?.aqi ?? '—'}</span></div>
-                <div style="margin-bottom:6px;"><strong>Status:</strong> ${properties?.status === 'USG' ? 'Unhealthy for Sensitive Groups' : properties?.status}</div>
-                <div style="margin-bottom:6px;"><strong>PM2.5:</strong> ${properties?.pm25 ? Number(properties.pm25).toFixed(1) : '—'} μg/m³</div>
+                <div style="margin-bottom:3px;"><strong>AQI:</strong> <span style="color:${properties?.color}; font-weight:600;">${properties?.aqi ?? '—'}</span></div>
+                <div style="margin-bottom:3px;"><strong>Status:</strong> ${properties?.status === 'USG' ? 'Unhealthy for Sensitive Groups' : properties?.status}</div>
+                <div style="margin-bottom:3px;"><strong>PM2.5:</strong> ${properties?.pm25 ? Number(properties.pm25).toFixed(1) : '—'} μg/m³</div>
                 ${timestampHtml}
               </div>
             </div>
@@ -379,6 +377,6 @@ function Map() {
       <div ref={mapContainer} className="absolute inset-0 overflow-hidden" />
     </div>
   );
-}
+};
 
 export default Map;

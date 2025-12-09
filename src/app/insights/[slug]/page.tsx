@@ -48,22 +48,6 @@ export default function InsightDetails({ params }: any) {
               className="w-full h-[500px] object-cover"
             />
           </div>
-
-          {/* Simple share icons on right (decorative, non-functional) */}
-          {/* <div className="hidden lg:flex flex-col gap-3 items-center absolute top-4 -right-16">
-            <span className="text-[10px] tracking-wide uppercase text-gray-500">
-              Share
-            </span>
-            <button className="w-8 h-8 border border-gray-300 rounded-full flex items-center justify-center text-xs hover:bg-gray-100">
-              f
-            </button>
-            <button className="w-8 h-8 border border-gray-300 rounded-full flex items-center justify-center text-xs hover:bg-gray-100">
-              in
-            </button>
-            <button className="w-8 h-8 border border-gray-300 rounded-full flex items-center justify-center text-xs hover:bg-gray-100">
-              ↗
-            </button>
-          </div> */}
         </section>
 
         <h2 className="my-5 text-2xl sm:text-3xl font-serif font-semibold leading-tight">

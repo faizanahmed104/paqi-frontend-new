@@ -2,180 +2,130 @@
 
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import Button from '@/ui-elements/Button';
+import { AirLoader } from '@/ui-elements/Loader';
+import {  buildUrl, controller, MAPBOX_ACCESS_TOKEN } from '@/libs/api';
+import { FAKE_HOTSPOTS, HOTSPOTS } from '@/components/common/constant';
 import { aqiInfo, getAqius } from '@/utils/helpers';
-import { API_KEY, BASE_URL, MAPBOX_ACCESS_TOKEN } from '@/libs/api';
-import { FAKE_HOTSPOTS, HOTSPOTS } from '../common/constant';
 
-mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
+mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN
 
 function Map() {
+  const [hotspotData, setHotspotData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [mapLoaded, setMapLoaded] = useState(false);
+
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapInstance = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
-  const [hotspotData, setHotspotData] = useState<any[]>([]);
-  const [mapLoaded, setMapLoaded] = useState(false);
 
-  // Fetch AQI data
+
+
+  const API_KEY = process.env.NEXT_PUBLIC_AIRVISUAL_KEY || '';
+
+  /* ---------- fetch AQI data (or fallback) ---------- */
   useEffect(() => {
     if (!API_KEY) {
       setHotspotData(FAKE_HOTSPOTS);
+      setLoading(false);
       return;
     }
 
-    const controller = new AbortController();
-    const buildUrl = (c: any, key: string) =>
-      `${BASE_URL}?city=${encodeURIComponent(c.city)}&state=${encodeURIComponent(c.state)}&country=${encodeURIComponent(c.country)}&key=${encodeURIComponent(key)}`;
-
+    setLoading(true);
     (async () => {
       try {
         const results = await Promise.all(
           HOTSPOTS.map(async (cfg) => {
-            const res = await fetch(buildUrl(cfg, API_KEY), {
+            const url = buildUrl(cfg, API_KEY);
+            const res = await fetch(url, {
               signal: controller.signal,
               cache: 'no-store',
             });
-            if (!res.ok)
+            if (!res.ok) {
+              // don't throw - return placeholder for that city
               return { city: cfg.city, aqi: null, pm25: null, timestamp: null };
+            }
             const json = await res.json();
             const aqius = getAqius(json);
+            // AirVisual sometimes has different naming for pm2.5; try a few options:
             const pm25 = json?.data?.current?.pollution?.p2?.conc ?? null;
             const timestamp = json?.data?.current?.pollution?.ts ?? null;
             return { city: cfg.city, aqi: aqius, pm25, timestamp };
           })
         );
+        // ensure order matches hotspots list (map above returns same order)
         setHotspotData(results);
       } catch (err) {
+        // on any error, fall back to safe empty array (UI will show no data)
         console.error('AQI fetch error:', err);
         setHotspotData([]);
+      } finally {
+        setLoading(false);
       }
     })();
 
     return () => controller.abort();
   }, [API_KEY]);
 
-  // Initialize map
   useEffect(() => {
     if (mapContainer.current && !mapInstance.current) {
-      const map = new mapboxgl.Map({
+      mapInstance.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/standard',
-        center: [69.3451, 30.3753], // Center of Pakistan
-        zoom: 3, // Start from zoomed out
-        projection: 'globe',
-        pitch: 0,
-        antialias: true, // Enable antialiasing for smoother rendering
+        center: [71.5, 30.2], // Center Pakistan
+        zoom: 3,
       });
 
-      mapInstance.current = map;
+      // Add zoom and rotation controls
+      mapInstance.current.addControl(new mapboxgl.NavigationControl());
 
-      // Add globe entrance animation
-      setTimeout(() => {
-        map.easeTo({
-          zoom: 5,
-          center: [69.3451, 30.3753],
-          duration: 3000,
-          easing: (t) => {
-            return t * (2 - t);
-          },
-        });
-      }, 500);
-
-      // Add navigation controls
-      map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-
-      // Add custom home button control
-      class HomeControl {
-        _map: mapboxgl.Map | null = null;
-        _container: HTMLDivElement | null = null;
-
-        onAdd(map: mapboxgl.Map) {
-          this._map = map;
-          this._container = document.createElement('div');
-          this._container.className = 'mapboxgl-ctrl mapboxgl-ctrl-group';
-          this._container.innerHTML = `
-            <button class="home-button" type="button" title="Go to home">
-              <span class="home-icon">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  style="margin-left:2px;"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  width="24"
-                  height="24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75M4.5 10.5V21h15V10.5M9 21v-6h6v6"/>
-                </svg>
-              </span>
-            </button>
-          `;
-
-          this._container.addEventListener('click', () => {
-            window.location.href = '/';
-          });
-
-          return this._container;
-        }
-
-        onRemove() {
-          this._container?.parentNode?.removeChild(this._container);
-          this._map = null;
-        }
-      }
-
-      map.addControl(new HomeControl(), 'top-right');
-
-      // Disable map rotation using right click + drag and touch rotation gesture
-      map.dragRotate.disable();
-      map.touchZoomRotate.disableRotation();
-
-      // Add atmosphere and stars for better globe effect
-      map.on('style.load', () => {
-        // Set dark theme with white landmasses
-        map.setFog({
-          'horizon-blend': 0.02,
-          'space-color': '#000000',
-          'star-intensity': 0.15,
-        });
-
-        // Add Pakistan boundary data
+      // Load Pakistan boundary data when map loads
+      mapInstance.current.on('load', () => {
         try {
-          map.addSource('pakistan-boundary', {
+          // Add the GeoJSON source using require (same as your working version)
+          mapInstance.current!.addSource('pakistan-boundary', {
             type: 'geojson',
             data: require('./pakistan.json'),
           });
 
-          // Add the outline layer
-          map.addLayer({
+          // Add the outline layer (same as your working version)
+          mapInstance.current!.addLayer({
             id: 'pakistan-outline',
             type: 'line',
             source: 'pakistan-boundary',
             paint: {
-              'line-color': '#022d12',
+              'line-color': '#13A94B',
               'line-width': 2,
               'line-opacity': 0.8,
             },
           });
+
+          // Mark map as loaded
+          setMapLoaded(true);
         } catch (error) {
           console.error('Error loading Pakistan boundary:', error);
+          // Still mark as loaded even if boundary fails to load
+          setMapLoaded(true);
         }
-
-        // Mark map as loaded
-        setMapLoaded(true);
       });
     }
 
-    // Cleanup
+    // Cleanup function
     return () => {
-      if (mapInstance.current) {
-        mapInstance.current.remove();
-        mapInstance.current = null;
-        setMapLoaded(false);
+      try {
+        if (mapInstance.current) {
+          if (mapInstance.current.loaded()) {
+            mapInstance.current.remove();
+          }
+          mapInstance.current = null;
+          setMapLoaded(false);
+        }
+      } catch (error) {
+        console.log('Map cleanup warning:', error);
       }
     };
   }, []);
 
-  // Add city markers when data is available and map is loaded
   useEffect(() => {
     const map = mapInstance.current;
     if (!map || !mapLoaded || !hotspotData || hotspotData.length === 0) return;
@@ -190,6 +140,7 @@ function Map() {
       map.removeSource('HOTSPOTS');
     }
 
+
     // Calculate the cutoff time (1 hour ago)
     const oneHourAgo = new Date(Date.now() - 7200 * 1000);
 
@@ -202,26 +153,27 @@ function Map() {
         const info = aqiInfo(aqi);
         const timestamp = data.timestamp ?? null;
 
-        // Create a formatted label for the map
-        const pm25Label = pm25 ? Number(pm25).toFixed(0) : '—';
+          // Create a formatted label for the map
+          const pm25Label = pm25 ? Number(pm25).toFixed(0) : '—';
+          
 
-        return {
-          type: 'Feature',
-          properties: {
-            city: hotspot.city,
-            aqi: aqi, // Pass raw aqi for filtering
-            pm25: pm25 || null,
-            pm25Label: pm25Label,
-            status: info.status,
-            color: info.color,
-            timestamp: timestamp ?? null,
-          },
-          geometry: {
-            type: 'Point',
-            coordinates: hotspot.coordinates,
-          },
-        };
-      })
+          return {
+            type: 'Feature',
+            properties: {
+              city: hotspot.city,
+              aqi: aqi, // Pass raw aqi for filtering
+              pm25: pm25 || null,
+              pm25Label: pm25Label,
+              status: info.status,
+              color: info.color,
+              timestamp: timestamp ?? null,
+            },
+            geometry: {
+              type: 'Point',
+              coordinates: hotspot.coordinates,
+            },
+          };
+        })
         // This line filters out all features where aqi is not a number
         .filter((feature) => {
           const aqi = feature.properties.aqi;
@@ -260,10 +212,8 @@ function Map() {
           'interpolate',
           ['linear'],
           ['zoom'],
-          5.5,
-          7, // At zoom 8 (and below), radius is 5px
-          6,
-          16, // At zoom 9 (and above), radius is 14px
+          5.5, 7,   // At zoom 8 (and below), radius is 5px
+          6, 16  // At zoom 9 (and above), radius is 14px
         ],
         'circle-color': ['get', 'color'],
         'circle-stroke-width': 3,
@@ -278,7 +228,7 @@ function Map() {
       id: 'hotspots-labels',
       type: 'symbol',
       source: 'HOTSPOTS',
-      minzoom: 6.5,
+      minzoom: 6,
       layout: {
         'text-field': ['get', 'pm25Label'],
         'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
@@ -316,7 +266,7 @@ function Map() {
 
         // Conditionally create the timestamp HTML
         let timestampHtml = '';
-
+        
         // Only if the timestamp exists (i.e., not fallback data), create the HTML line
         if (properties?.timestamp) {
           const ts = new Date(properties.timestamp).toLocaleString(undefined, {
@@ -335,12 +285,12 @@ function Map() {
           .setLngLat(coordinates)
           .setHTML(
             `
-            <div style="min-width:180px; max-width:90vw; padding:8px; box-sizing:border-box; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;">
-              <div style="font-weight:600; margin-bottom:6px; font-size:16px; color:#111;">${properties?.city}</div>
+            <div style="min-width:450px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;">
+              <div style="font-weight:600; margin-bottom:8px; font-size:16px; color:#111;">${properties?.city}</div>
               <div style="font-size:13px; color:#374151; line-height:1.4;">
-                <div style="margin-bottom:6px;"><strong>AQI:</strong> <span style="color:${properties?.color}; font-weight:600;">${properties?.aqi ?? '—'}</span></div>
-                <div style="margin-bottom:6px;"><strong>Status:</strong> ${properties?.status === 'USG' ? 'Unhealthy for Sensitive Groups' : properties?.status}</div>
-                <div style="margin-bottom:6px;"><strong>PM2.5:</strong> ${properties?.pm25 ? Number(properties.pm25).toFixed(1) : '—'} μg/m³</div>
+                <div style="margin-bottom:3px;"><strong>AQI:</strong> <span style="color:${properties?.color}; font-weight:600;">${properties?.aqi ?? '—'}</span></div>
+                <div style="margin-bottom:3px;"><strong>Status:</strong> ${properties?.status === 'USG' ? 'Unhealthy for Sensitive Groups' : properties?.status}</div>
+                <div style="margin-bottom:3px;"><strong>PM2.5:</strong> ${properties?.pm25 ? Number(properties.pm25).toFixed(1) : '—'} μg/m³</div>
                 ${timestampHtml}
               </div>
             </div>
@@ -375,8 +325,57 @@ function Map() {
   }, [hotspotData, mapLoaded]);
 
   return (
-    <div className="relative w-full h-screen">
-      <div ref={mapContainer} className="absolute inset-0 overflow-hidden" />
+    <div className="p-4">
+      <div className="bg-green-100 rounded-3xl">
+        <div className="max-w-7xl mx-auto rounded-3xl p-8 lg:p-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left - Interactive Map */}
+            <div className="relative -mx-4 -mt-4 sm:mt-0  sm:mx-0">
+              <div
+                ref={mapContainer}
+                className="relative rounded-xl min-h-[400px] lg:min-h-[500px] overflow-hidden"
+              />
+              {loading && (
+                <div className="absolute inset-0 bg-white bg-opacity-75 rounded-2xl flex items-center justify-center">
+                  <AirLoader />
+                </div>
+              )}
+            </div>
+
+            {/* Right - Content */}
+            <div className="space-y-6 lg:pl-8 text-right flex flex-col items-end">
+              <span className="bg-[#12352480] text-white px-4 py-2 rounded-full text-sm font-medium">
+                Live Air Quality Map
+              </span>
+
+              <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-4">
+                Live Air Quality
+                <br />
+                Insights Across
+                <br />
+                <span className="text-[#13A94B]">Pakistan</span>
+              </h2>
+
+              <p className="text-lg text-gray-600 leading-relaxed">
+                Our network provides a real-time snapshot of the air quality in
+                major urban centers. Explore the map to see the latest PM2.5 concentration across Pakistani cities.
+              </p>
+
+              <div className="pt-4">
+                <Button
+                  variant="outlined"
+                  size="lg"
+                  shape="square"
+                  iconRight="→"
+                  className="text-black border-black hover:bg-[#123524] hover:text-white"
+                >
+                  Interactive Dashboard
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

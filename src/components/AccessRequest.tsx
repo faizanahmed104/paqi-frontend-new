@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState } from 'react';
 import Button from '@/ui-elements/Button';
@@ -56,34 +56,42 @@ export default function AccessRequest({ slug, title }: AccessRequestProps) {
     try {
       setLoading(true);
 
-      // Try to POST to an API route if available; fallback to simulated delay
-      const payload = { name: name.trim(), email: email.trim(), affiliation: affiliation.trim(), slug, title };
+      const payload = {
+        access_key: process.env.NEXT_PUBLIC_FORM_API_KEY,
+        name: name.trim(),
+        email: email.trim(),
+        affiliation: affiliation.trim(),
+        subject: `Access request: ${title ?? slug ?? ''}`,
+        from_name: name.trim() || 'Website Visitor',
+        message: `Requesting access to document: ${title ?? slug ?? ''}`,
+        // honeypot field for spam protection
+        botcheck: '',
+      };
 
-      let ok = false;
-      try {
-        const res = await fetch('/api/access-request', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        ok = res.ok;
-      } catch (err) {
-        // network error or endpoint not present — treat as not-ok and fallback
-        ok = false;
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (data && data.success) {
+        setSuccess(
+          'Request submitted. We will email the document if approved.'
+        );
+        setLoading(false);
+        setTimeout(() => {
+          handleClose();
+        }, 1200);
+      } else {
+        setError(data?.message || 'Submission failed. Please try again.');
+        setLoading(false);
       }
-
-      // If endpoint not present, simulate a request so UX shows loader
-      if (!ok) {
-        await new Promise((r) => setTimeout(r, 1000));
-      }
-
-      setSuccess('Request submitted. We will email the document if approved.');
-      setLoading(false);
-      // keep modal open for a moment to show success then close
-      setTimeout(() => {
-        handleClose();
-      }, 1200);
     } catch (err) {
+      console.error(err);
       setError('Submission failed. Please try again.');
       setLoading(false);
     }
@@ -120,11 +128,15 @@ export default function AccessRequest({ slug, title }: AccessRequestProps) {
                 </button>
               </div>
 
-              <p className="mt-2 text-sm text-gray-600">Provide your name and email to request access to this document.</p>
+              <p className="mt-2 text-sm text-gray-600">
+                Provide your name and email to request access to this document.
+              </p>
 
               <form className="mt-4 space-y-4" onSubmit={handleSubmit}>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700">Name</label>
+                  <label className="block text-xs font-medium text-gray-700">
+                    Name
+                  </label>
                   <input
                     type="text"
                     value={name}
@@ -136,7 +148,9 @@ export default function AccessRequest({ slug, title }: AccessRequestProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-700">Email</label>
+                  <label className="block text-xs font-medium text-gray-700">
+                    Email
+                  </label>
                   <input
                     type="email"
                     value={email}
@@ -148,7 +162,9 @@ export default function AccessRequest({ slug, title }: AccessRequestProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-700">Affiliation</label>
+                  <label className="block text-xs font-medium text-gray-700">
+                    Affiliation
+                  </label>
                   <input
                     type="text"
                     value={affiliation}
@@ -159,7 +175,9 @@ export default function AccessRequest({ slug, title }: AccessRequestProps) {
                 </div>
 
                 {error && <div className="text-sm text-red-600">{error}</div>}
-                {success && <div className="text-sm text-green-600">{success}</div>}
+                {success && (
+                  <div className="text-sm text-green-600">{success}</div>
+                )}
 
                 <div className="flex items-center justify-end space-x-3">
                   <button

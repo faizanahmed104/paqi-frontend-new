@@ -1,0 +1,16 @@
+export const LOGOS = [
+  '/assets/partners/bank-alfalah.png',
+  '/assets/partners/breathepak.png',
+  '/assets/partners/cfp.png',
+  '/assets/partners/epic.png',
+  '/assets/partners/iba.png',
+  '/assets/partners/iqair.png',
+  '/assets/partners/uol.png',
+  '/assets/partners/kul.png',
+  '/assets/partners/lei.png',
+  '/assets/partners/lums.png',
+  '/assets/partners/pcaa.png',
+  '/assets/partners/umt.png',
+  '/assets/partners/wwf.png',
+  '/assets/partners/LAACA.png',
+];

@@ -2,25 +2,9 @@
 
 import Image from 'next/image';
 import { useEffect, useRef } from 'react';
+import { LOGOS } from './constant';
 
 export default function Partners() {
-  const logos = [
-    '/assets/partners/bank-alfalah.png',
-    '/assets/partners/breathepak.png',
-    '/assets/partners/cfp.png',
-    '/assets/partners/epic.png',
-    '/assets/partners/iba.png',
-    '/assets/partners/iqair.png',
-    '/assets/partners/uol.png',
-    '/assets/partners/kul.png',
-    '/assets/partners/lei.png',
-    '/assets/partners/lums.png',
-    '/assets/partners/pcaa.png',
-    '/assets/partners/umt.png',
-    '/assets/partners/wwf.png',
-    '/assets/partners/LAACA.png',
-  ];
-
   const trackRef1 = useRef<HTMLDivElement>(null);
   const trackRef2 = useRef<HTMLDivElement>(null);
 
@@ -67,25 +51,25 @@ export default function Partners() {
         drive systemic change.
       </p>
 
-      <div className="overflow-hidden relative w-full h-[100px]">
+      <div className="overflow-hidden relative w-full h-[140px] sm:h-[120px]">
         {/* Track 1 */}
         <div
           className="flex items-center absolute left-0 top-0"
           ref={trackRef1}
         >
-          {logos.map((src, i) => (
+          {LOGOS.map((src, i) => (
             <div
               key={`track1-${i}`}
-              className="flex h-[100px] items-center justify-center shrink-0 sm:px-10"
+              className="flex h-[140px] sm:h-[120px] items-center justify-center shrink-0 sm:px-10"
             >
-              <div className="relative w-[120px] flex items-center justify-center">
+              <div className="relative w-[160px] flex items-center justify-center">
                 <Image
-                  width={100}
-                  height={100}
+                  width={140}
+                  height={140}
                   src={src}
                   alt="Partner Logo"
                   style={{ objectFit: 'contain' }}
-                  className="max-w-[100px] max-h-[40px] sm:max-h-[45px] lg:max-h-[50px] w-auto opacity-70 grayscale transition hover:scale-110 hover:opacity-100 hover:grayscale-0"
+                  className="max-w-[140px] max-h-[60px] sm:max-h-[70px] lg:max-h-[80px] w-auto opacity-70 grayscale transition hover:scale-110 hover:opacity-100 hover:grayscale-0"
                 />
               </div>
             </div>
@@ -97,19 +81,19 @@ export default function Partners() {
           className="flex items-center absolute left-0 top-0"
           ref={trackRef2}
         >
-          {logos.map((src, i) => (
+          {LOGOS.map((src, i) => (
             <div
               key={`track2-${i}`}
-              className="flex h-[100px] items-center justify-center shrink-0 sm:px-10"
+              className="flex h-[140px] sm:h-[120px] items-center justify-center shrink-0 sm:px-10"
             >
-              <div className="relative w-[120px] flex items-center justify-center">
+              <div className="relative w-[160px] flex items-center justify-center">
                 <Image
-                  width={100}
-                  height={100}
+                  width={140}
+                  height={140}
                   src={src}
                   alt="Partner Logo"
                   style={{ objectFit: 'contain' }}
-                  className="max-w-[100px] max-h-[40px] sm:max-h-[45px] lg:max-h-[50px] w-auto opacity-70 grayscale transition hover:scale-110 hover:opacity-100 hover:grayscale-0"
+                  className="max-w-[140px] max-h-[60px] sm:max-h-[70px] lg:max-h-[80px] w-auto opacity-70 grayscale transition hover:scale-110 hover:opacity-100 hover:grayscale-0"
                 />
               </div>
             </div>

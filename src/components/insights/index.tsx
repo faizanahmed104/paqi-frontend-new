@@ -16,17 +16,13 @@ function Insights() {
       <div className="max-w-7xl mx-auto my-16">
         {/* Dynamic Insight Highlight Blocks */}
         <div className="mb-32 ml-7 flex items-center gap-6 -mt-10">
-          <h2 className="text-4xl font-semibold text-black">
-            Featured
-          </h2>
+          <h2 className="text-4xl font-semibold text-black">Featured</h2>
+
           <div className="roller w-full">
-            <span id="rolltext" className="flex gap-6">
-              <div className="mx-6 border-l border-gray-300" />
-              <span className="block text-lg font-normal text-gray-600">Technical Reports</span>
-              <div className="mx-6 border-l border-gray-300" />
-              <span className="block text-lg font-normal text-gray-600">Research Papers</span>
-              <div className="mx-6 border-l border-gray-300" />
-              <span className="block text-lg font-normal text-gray-600">Policy Briefs</span>
+            <span id="rolltext" className="text-lg font-normal text-gray-600">
+              <span>Technical Reports</span>
+              <span>Research Papers</span>
+              <span>Policy Briefs</span>
             </span>
           </div>
         </div>

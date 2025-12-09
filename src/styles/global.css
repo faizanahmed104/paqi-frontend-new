@@ -37,64 +37,52 @@
   }
 }
 
+/* Container for the rolling text */
 .roller {
-  height: 1.5rem;
-  line-height: 1.5rem;
   position: relative;
   overflow: hidden;
+  height: 2rem;
+  /* match one line of text */
+}
+
+/* The element that moves up and down */
+#rolltext {
   display: inline-block;
+  animation: rollText 9s infinite ease-in-out;
 }
 
-.roller #rolltext {
-  position: absolute;
-  top: 0;
-  animation: slide 3s infinite;
+/* Each phrase stacked vertically */
+#rolltext span {
+  display: block;
+  line-height: 2rem;
+  /* same as .roller height */
+  white-space: nowrap;
 }
 
-@keyframes slide {
-  0% {
-    top: 0;
+/* 3 items → move by ~1/3 and 2/3 of the total height */
+@keyframes rollText {
+
+  /* First word visible */
+  0%,
+  20% {
+    transform: translateY(0%);
   }
 
-  33.33% {
-    top: -1.5rem;
+  /* Second word visible */
+  25%,
+  45% {
+    transform: translateY(-33.333%);
   }
 
-  66.66% {
-    top: -3rem;
+  /* Third word visible */
+  50%,
+  70% {
+    transform: translateY(-66.666%);
   }
 
+  /* Back to first word */
+  75%,
   100% {
-    top: 0;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .roller {
-    height: 1.125rem;
-    line-height: 1.125rem;
-    overflow-x: auto;
-  }
-
-  .roller #rolltext {
-    animation: slide-mob 3s infinite;
-  }
-
-  @keyframes slide-mob {
-    0% {
-      top: 0;
-    }
-
-    33.33% {
-      top: -1.125rem;
-    }
-
-    66.66% {
-      top: -2.25rem;
-    }
-
-    100% {
-      top: 0;
-    }
+    transform: translateY(0%);
   }
 }

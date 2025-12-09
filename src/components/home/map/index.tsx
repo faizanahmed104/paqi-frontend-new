@@ -4,11 +4,11 @@ import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import Button from '@/ui-elements/Button';
 import { AirLoader } from '@/ui-elements/Loader';
-import {  buildUrl, controller, MAPBOX_ACCESS_TOKEN } from '@/libs/api';
+import { buildUrl, controller, MAPBOX_ACCESS_TOKEN } from '@/libs/api';
 import { FAKE_HOTSPOTS, HOTSPOTS } from '@/components/common/constant';
 import { aqiInfo, getAqius } from '@/utils/helpers';
 
-mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN
+mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
 function Map() {
   const [hotspotData, setHotspotData] = useState<any[]>([]);
@@ -18,8 +18,6 @@ function Map() {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapInstance = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
-
-
 
   const API_KEY = process.env.NEXT_PUBLIC_AIRVISUAL_KEY || '';
 
@@ -140,7 +138,6 @@ function Map() {
       map.removeSource('HOTSPOTS');
     }
 
-
     // Calculate the cutoff time (1 hour ago)
     const oneHourAgo = new Date(Date.now() - 7200 * 1000);
 
@@ -153,27 +150,26 @@ function Map() {
         const info = aqiInfo(aqi);
         const timestamp = data.timestamp ?? null;
 
-          // Create a formatted label for the map
-          const pm25Label = pm25 ? Number(pm25).toFixed(0) : '—';
-          
+        // Create a formatted label for the map
+        const pm25Label = pm25 ? Number(pm25).toFixed(0) : '—';
 
-          return {
-            type: 'Feature',
-            properties: {
-              city: hotspot.city,
-              aqi: aqi, // Pass raw aqi for filtering
-              pm25: pm25 || null,
-              pm25Label: pm25Label,
-              status: info.status,
-              color: info.color,
-              timestamp: timestamp ?? null,
-            },
-            geometry: {
-              type: 'Point',
-              coordinates: hotspot.coordinates,
-            },
-          };
-        })
+        return {
+          type: 'Feature',
+          properties: {
+            city: hotspot.city,
+            aqi: aqi, // Pass raw aqi for filtering
+            pm25: pm25 || null,
+            pm25Label: pm25Label,
+            status: info.status,
+            color: info.color,
+            timestamp: timestamp ?? null,
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: hotspot.coordinates,
+          },
+        };
+      })
         // This line filters out all features where aqi is not a number
         .filter((feature) => {
           const aqi = feature.properties.aqi;
@@ -212,8 +208,10 @@ function Map() {
           'interpolate',
           ['linear'],
           ['zoom'],
-          5.5, 7,   // At zoom 8 (and below), radius is 5px
-          6, 16  // At zoom 9 (and above), radius is 14px
+          5.5,
+          7, // At zoom 8 (and below), radius is 5px
+          6,
+          16, // At zoom 9 (and above), radius is 14px
         ],
         'circle-color': ['get', 'color'],
         'circle-stroke-width': 3,
@@ -266,7 +264,7 @@ function Map() {
 
         // Conditionally create the timestamp HTML
         let timestampHtml = '';
-        
+
         // Only if the timestamp exists (i.e., not fallback data), create the HTML line
         if (properties?.timestamp) {
           const ts = new Date(properties.timestamp).toLocaleString(undefined, {
@@ -285,12 +283,12 @@ function Map() {
           .setLngLat(coordinates)
           .setHTML(
             `
-            <div style="min-width:450px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;">
-              <div style="font-weight:600; margin-bottom:8px; font-size:16px; color:#111;">${properties?.city}</div>
+            <div style="min-width:180px; max-width:90vw; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; padding:8px; box-sizing:border-box;">
+              <div style="font-weight:600; margin-bottom:6px; font-size:16px; color:#111;">${properties?.city}</div>
               <div style="font-size:13px; color:#374151; line-height:1.4;">
-                <div style="margin-bottom:3px;"><strong>AQI:</strong> <span style="color:${properties?.color}; font-weight:600;">${properties?.aqi ?? '—'}</span></div>
-                <div style="margin-bottom:3px;"><strong>Status:</strong> ${properties?.status === 'USG' ? 'Unhealthy for Sensitive Groups' : properties?.status}</div>
-                <div style="margin-bottom:3px;"><strong>PM2.5:</strong> ${properties?.pm25 ? Number(properties.pm25).toFixed(1) : '—'} μg/m³</div>
+                <div style="margin-bottom:6px;"><strong>AQI:</strong> <span style="color:${properties?.color}; font-weight:600;">${properties?.aqi ?? '—'}</span></div>
+                <div style="margin-bottom:6px;"><strong>Status:</strong> ${properties?.status === 'USG' ? 'Unhealthy for Sensitive Groups' : properties?.status}</div>
+                <div style="margin-bottom:6px;"><strong>PM2.5:</strong> ${properties?.pm25 ? Number(properties.pm25).toFixed(1) : '—'} μg/m³</div>
                 ${timestampHtml}
               </div>
             </div>
@@ -358,7 +356,8 @@ function Map() {
 
               <p className="text-lg text-gray-600 leading-relaxed">
                 Our network provides a real-time snapshot of the air quality in
-                major urban centers. Explore the map to see the latest PM2.5 concentration across Pakistani cities.
+                major urban centers. Explore the map to see the latest PM2.5
+                concentration across Pakistani cities.
               </p>
 
               <div className="pt-4">
