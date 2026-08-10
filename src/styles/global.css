@@ -86,3 +86,23 @@
     transform: translateY(0%);
   }
 }
+html,
+body {
+  scroll-behavior: smooth;
+}
+
+/* Make the page a vertical snap container */
+body {
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fallback: sections tag often used for logical page sections */
+section {
+  scroll-snap-align: start;
+}
+
+/* Small helper to hide overflow during programmatic scroll to avoid double scrollbars on some mobile browsers */
+.scrolling-lock {
+  touch-action: none;
+}
